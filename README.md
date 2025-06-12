@@ -1,41 +1,38 @@
-# To-Do-Timer-Dashboard
+# sv
 
-This project is a small prototype for a time-tracking TODO list. It is built
-with **Svelte** and **TypeScript** and focuses on the idea that you can only
-work on one task at a time.
+Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-## Interface Overview
+## Creating a project
 
-The application UI is composed of seven main components:
+If you're seeing this, you've probably already done this step. Congrats!
 
-1. **Page banner** – provides the application name and common controls such as
-   export/import, theming and settings.
-2. **Day recap** – a left column that lists all active activity for the current
-   day. It includes a date picker and respects the day start/end times
-   configured in the banner.
-3. **Active** – contains at most one task at a time and tracks the active
-   duration.
-4. **To‑Do list** – shows the remaining tasks. A separate **Add Item** input at
-   the bottom lets you add new tasks.
-5. **Advanced details** – provides extra information about the currently active
-   task.
-6. **Tags list** – shows every tag that exists across tasks.
-7. **Done list** – an optional list of completed tasks that can be toggled
-   on or off.
+```bash
+# create a new project in the current directory
+npx sv create
 
-## Core Requirements
+# create a new project in my-app
+npx sv create my-app
+```
 
-- The interface has two boxes:
-  - **Active**: contains at most one task and tracks how long that task has been
-    active.
-  - **List**: holds the remaining tasks. Items can be dragged between this box
-    and the Active box.
-- Only one item may be in the Active box at any given time.
-- When an item leaves the Active box its timer stops and it returns to the List
-  box, returning to the top of the To‑Do list.
-- New tasks can be added via an **Add Item** input at the bottom of the list and
-  will appear at the bottom.
+## Developing
 
-## License
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
-This project is licensed under the [MIT License](LICENSE).
+```bash
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
+
+## Building
+
+To create a production version of your app:
+
+```bash
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
