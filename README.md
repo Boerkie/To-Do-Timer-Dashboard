@@ -35,3 +35,7 @@ The application UI is composed of seven main components:
   box, returning to the top of the To‑Do list.
 - New tasks can be added via an **Add Item** input at the bottom of the list and
   will appear at the bottom.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
