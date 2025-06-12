@@ -1,8 +1,8 @@
 # TODO Timer Dashboard
 
 This project is a SvelteKit based application for tracking tasks with timed active periods.
-Core requirements are documented in [docs/README.md](docs/README.md)
-Component stubs are detailed in [docs/components.md](docs/components.md).
+Key behaviors are summarized in [CORE_REQUIREMENTS.md](CORE_REQUIREMENTS.md).
+More details are available in [docs/README.md](docs/README.md), and component stubs are detailed in [docs/components.md](docs/components.md).
 
 ---
 # sv
