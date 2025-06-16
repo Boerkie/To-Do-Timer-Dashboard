@@ -104,14 +104,17 @@
 
 <style>
 .active-task {
-  padding: 1rem;
-  border: 1px solid currentColor;
-  min-height: 3rem;
+  padding: 0;
 }
 .current {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  padding: 0.5rem;
+  background: var(--bg-box);
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  transform: scale(1.05);
 }
 .row {
   display: flex;
