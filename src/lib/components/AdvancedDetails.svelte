@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TodoTask } from '$lib/types';
-  import { tagStyles, tasks as tasksStore, settings } from '$lib';
+  import { tagStyles, tasks as tasksStore, settings, PRIORITY_LABELS } from '$lib';
   import { get } from 'svelte/store';
   import { onMount, onDestroy } from 'svelte';
 
@@ -73,6 +73,10 @@
     </div>
     <textarea placeholder="Task details" bind:value={task.details}></textarea>
     <div class="readonly">Today: {formatDuration(totalToday)}</div>
+    <div class="readonly priority-display">
+      <span class="prio p{task.priority ?? 4}"></span>
+      {PRIORITY_LABELS[task.priority ?? 4]}
+    </div>
     <div class="readonly">Created: {new Date(task.createdAt).toLocaleString()}</div>
     <div class="tags">
       {#each [...task.tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })) as tag}
@@ -99,6 +103,10 @@
       </div>
       <textarea placeholder="Task details" disabled></textarea>
       <div class="readonly">Today: 00:00:00</div>
+      <div class="readonly priority-display">
+        <span class="prio p4"></span>
+        P4 - Low
+      </div>
       <div class="readonly">Created:</div>
       <div class="tags"></div>
     </div>
@@ -137,6 +145,20 @@
   .readonly {
     font-size: 0.8rem;
   }
+  .priority-display {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .prio {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 0.1rem;
+  }
+  .p1 { background: #ff5555; }
+  .p2 { background: #ff9900; }
+  .p3 { background: #22aa22; }
+  .p4 { background: #888888; }
   .placeholder {
     visibility: hidden;
   }

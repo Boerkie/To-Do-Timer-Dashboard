@@ -8,3 +8,6 @@ export const tagFilter = writable<string[]>([]);
 
 /** True if filtering is by AND, false for OR */
 export const tagFilterAnd = writable(true);
+
+/** Selected priority for filtering or null for all */
+export const priorityFilter = writable<number | null>(null);

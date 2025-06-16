@@ -1,6 +1,13 @@
 <script lang="ts">
   import type { TodoTask } from '$lib/types';
-  import { activateTask, tagStyles, tasks as tasksStore, settings } from '$lib';
+  import {
+    activateTask,
+    tagStyles,
+    tasks as tasksStore,
+    settings,
+    cyclePriority,
+    PRIORITY_LABELS
+  } from '$lib';
   import { get } from 'svelte/store';
   import { onMount, onDestroy } from 'svelte';
   export let task: TodoTask | null = null;
@@ -72,6 +79,11 @@
       on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/active', task.id)}
     >
       <div class="row">
+        <span
+          class="prio p{task.priority ?? 4}"
+          title={PRIORITY_LABELS[task.priority ?? 4]}
+          on:click={() => cyclePriority(task.id)}
+        ></span>
         <span class="title">{task.title}</span>
         <span class="time">{formatDuration(totalTime)}</span>
       </div>
@@ -106,6 +118,17 @@
   justify-content: space-between;
   align-items: baseline;
 }
+.prio {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 0.1rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+.p1 { background: #ff5555; }
+.p2 { background: #ff9900; }
+.p3 { background: #22aa22; }
+.p4 { background: #888888; }
 .tags {
   display: flex;
   flex-wrap: wrap;

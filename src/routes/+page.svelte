@@ -6,6 +6,7 @@
     TodoList,
     ClearedList,
     AdvancedDetails,
+    PriorityFilter,
     TagsList,
     todoTasks,
     clearedTasks,
@@ -53,6 +54,10 @@
     <div class="box-title">Details</div>
     <div class="box details-box">
       <AdvancedDetails task={$activeTask} />
+    </div>
+    <div class="box-title">Priority</div>
+    <div class="box priority-box">
+      <PriorityFilter />
     </div>
     <div class="box-title">Tags</div>
     <div class="box tags-box">
@@ -106,5 +111,8 @@
   .todo-list-box {
     max-height: 30rem;
     overflow-y: auto;
+  }
+  .priority-box {
+    padding: 0.5rem;
   }
 </style>
