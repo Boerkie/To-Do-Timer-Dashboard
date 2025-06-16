@@ -1,5 +1,7 @@
 # Core Requirements
 
+This README consolidates earlier summaries and is the primary reference for the TODO Timer Dashboard core requirements.
+
 This document summarizes the essential behaviors for the TODO Timer Dashboard application.
 
 - Only **one task** can be active at a time.
