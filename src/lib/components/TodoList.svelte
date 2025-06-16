@@ -36,6 +36,7 @@
         on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/task', t.id)}
         on:dragover|preventDefault={() => {}}
         on:drop={(e: DragEvent) => {
+          e.stopPropagation();
           const id = e.dataTransfer?.getData('text/task');
           if (id && id !== t.id) reorderTodo(id, t.id);
           const tag = e.dataTransfer?.getData('text/tag');
@@ -51,7 +52,7 @@
         <span class="priority"></span>
         <span class="title">{t.title}</span>
         <span class="tags">
-          {#each t.tags as tag}
+          {#each [...t.tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })) as tag}
             <span
               class="tag-pill"
               style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]?.fg};border-color:{get(tagStyles)[tag]?.border}"
@@ -103,7 +104,7 @@
 .tag-pill {
   padding: 0.1rem 0.3rem;
   border-radius: 0.5rem;
-  border: 1px solid var(--border);
+  border: var(--tag-border-width, 2px) solid var(--border);
   font-size: 0.7rem;
 }
 .add-bar {

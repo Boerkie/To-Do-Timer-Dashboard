@@ -5,9 +5,10 @@
   let unsubscribe: () => void;
 
   onMount(() => {
-    unsubscribe = settings.subscribe(({ theme }) => {
+    unsubscribe = settings.subscribe(({ theme, tagBorderWidth }) => {
       document.documentElement.classList.toggle('theme-dark', theme === 'dark');
       document.documentElement.classList.toggle('theme-light', theme === 'light');
+      document.documentElement.style.setProperty('--tag-border-width', `${tagBorderWidth}px`);
     });
   });
 
@@ -19,6 +20,9 @@
 <slot />
 
 <style>
+  :global(:root) {
+    --tag-border-width: 2px;
+  }
   :global(.theme-light) {
     --bg-panel: #fafbfc;
     --bg-box: #ffffff;

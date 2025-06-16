@@ -2,6 +2,7 @@ import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { TodoTask } from '$lib/types';
 import { ensureTagStyle } from './tagStyles';
+import { tagFilter, tagFilterAnd } from './ui';
 
 /** Parse an input string and extract tags prefixed with '#'.
  * Returns the cleaned title and array of tags.
@@ -125,6 +126,15 @@ export function reorderTodo(id: string, beforeId: string | null) {
   });
 }
 
+export function renameTag(oldName: string, newName: string) {
+  tasks.update((list) => {
+    list.forEach((t) => {
+      t.tags = t.tags.map((tag) => (tag === oldName ? newName : tag));
+    });
+    return [...list];
+  });
+}
+
 /** Add a new task from an input string. */
 export function addTask(input: string): void {
   const { title, tags } = parseInput(input);
@@ -146,14 +156,25 @@ export const clearedTasks = derived(tasks, ($tasks) =>
   $tasks.filter((t) => t.isDone)
 );
 
-export const todoTasks = derived(tasks, ($tasks) =>
-  $tasks.filter((t) => !t.isDone && !isTaskActive(t))
+export const todoTasks = derived(
+  [tasks, tagFilter, tagFilterAnd],
+  ([$tasks, $filter, $and]) => {
+    let res = $tasks.filter((t) => !t.isDone && !isTaskActive(t));
+    if ($filter.length) {
+      res = res.filter((t) =>
+        $and
+          ? $filter.every((tag) => t.tags.includes(tag))
+          : $filter.some((tag) => t.tags.includes(tag))
+      );
+    }
+    return res;
+  }
 );
 
 export const tags = derived(tasks, ($tasks) => {
   const set = new Set<string>();
   $tasks.forEach((t) => t.tags.forEach((tag) => set.add(tag)));
-  return Array.from(set);
+  return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 });
 
 export const selectedDate = writable(new Date());
