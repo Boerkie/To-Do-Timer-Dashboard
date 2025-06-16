@@ -70,6 +70,8 @@ The application UI is composed of the following components:
 - **Task Addition:**
     - Tasks can be added using the **Add new task** input, supporting tags (`#tag`) and priorities (`!`).
     - New tasks appear at the **bottom** of the To‑Do List.
+- **Priority Handling:**
+    - Priority values cycle from **P4** (default) to **P3**, **P2**, **P1**, then restart at **P4**.
 - **Task Timing:**
     - Each task tracks the cumulative duration it was active for the day.
     - The Day Recap shows a bar/timeline visualization per task.
@@ -82,6 +84,7 @@ The application UI is composed of the following components:
     - All unique tags from all tasks are shown in the Tags List.
     - Selecting a tag filters or highlights associated tasks in all lists.
     - Dragging a tag onto a task adds the tag to that task.
+    - Filtering by priority highlights the selected priority similar to tag filtering.
 
 ---
 
@@ -92,3 +95,6 @@ The application UI is composed of the following components:
 - Task drag-and-drop should have clear visual feedback.
 - Timeline in Day Recap should update live as time advances.
 - “Advanced details” adapts to show info for the current active task.
+- Active item displays like a slightly enlarged list entry instead of occupying one-third of the width.
+- List items show total time spent and tags on a line beneath the name and timer, with list numbers outside the rounded item.
+- Day Recap layout should resemble a sequence diagram with bars filled during active periods.
