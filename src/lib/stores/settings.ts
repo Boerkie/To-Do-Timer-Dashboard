@@ -9,7 +9,7 @@ export interface Settings {
 
 const DEFAULT_SETTINGS: Settings = {
   dayStart: '08:00',
-  dayEnd: '22:00',
+  dayEnd: '18:00',
   theme: 'dark'
 };
 

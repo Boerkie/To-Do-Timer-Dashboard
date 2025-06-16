@@ -1,67 +1,108 @@
 <script lang="ts">
-  import { get } from 'svelte/store';
-  import { tasks, settings } from '$lib';
+  import { settings } from '$lib/stores/settings';
+  import type { Settings } from '$lib/stores/settings';
+  import { onDestroy } from 'svelte';
 
-  let importInput: HTMLInputElement;
+  let showModal = false;
+  let localSettings: Settings;
 
+  const unsubscribe = settings.subscribe(value => {
+    localSettings = { ...value };
+  });
+
+  function saveSettings() {
+    settings.set(localSettings);
+    showModal = false;
+  }
+
+  function cancel() {
+    showModal = false;
+  }
+
+  // Stub export/import; replace with actual implementations or dispatch events
   function exportData() {
-    const data = {
-      tasks: get(tasks),
-      settings: get(settings)
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: 'application/json'
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'todo-data.json';
-    a.click();
-    URL.revokeObjectURL(url);
+    const event = new CustomEvent('export');
+    dispatchEvent(event);
+  }
+  function importData() {
+    const event = new CustomEvent('import');
+    dispatchEvent(event);
   }
 
-  function importData(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const obj = JSON.parse(reader.result as string);
-        if (obj.tasks) tasks.set(obj.tasks);
-        if (obj.settings) settings.set(obj.settings);
-      } catch (e) {
-        console.error('Failed to import data', e);
-      }
-    };
-    reader.readAsText(file);
-    input.value = '';
-  }
-
-  function handleExportImport() {
-    if (confirm('Export current data? Click Cancel to import from file.')) {
-      exportData();
-    } else {
-      importInput.click();
-    }
-  }
+  onDestroy(unsubscribe);
 </script>
 
 <header class="page-banner">
-  <h1>TODO Timer Dashboard</h1>
-  <nav class="controls">
-    <input
-      type="file"
-      accept="application/json"
-      on:change={importData}
-      bind:this={importInput}
-      style="display: none"
-    />
-    <button title="Export/Import" on:click={handleExportImport}>💾</button>
-    <button title="Settings">⚙️</button>
-  </nav>
+  <h1>⏳ TODO Timer Dashboard</h1>
+  <div class="actions">
+    <button on:click={exportData}>Export</button>
+    <button on:click={importData}>Import</button>
+    <button on:click={() => (showModal = true)} title="Settings">⚙️</button>
+  </div>
 </header>
 
+{#if showModal}
+  <div class="modal-overlay" on:click={cancel}>
+    <div class="modal" on:click|stopPropagation>
+      <h2>Settings</h2>
+      <form on:submit|preventDefault={saveSettings}>
+        <label>
+          Day Start:
+          <input type="time" bind:value={localSettings.dayStart} required />
+        </label>
+        <label>
+          Day End:
+          <input type="time" bind:value={localSettings.dayEnd} required />
+        </label>
+        <label>
+          Theme:
+          <select bind:value={localSettings.theme}>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+
+        <div class="modal-actions">
+          <button type="submit">Save</button>
+          <button type="button" on:click={cancel}>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{/if}
+
 <style>
-.page-banner { display: flex; justify-content: space-between; align-items: center; padding: 1rem; }
+  .page-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--banner-bg);
+  }
+  .actions button {
+    margin-left: 0.5rem;
+  }
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal {
+    background: var(--modal-bg);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    width: 300px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+  .modal-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .modal-actions button {
+    margin-left: 0.5rem;
+  }
 </style>
