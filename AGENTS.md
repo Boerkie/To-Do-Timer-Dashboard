@@ -1,13 +1,4 @@
 agents:
-  - key: default
-    name: "Default Assistant"
-    model: "gpt-4"
-    description: "General-purpose assistant for conversations and guidance."
-    system_prompt: |
-      You are a helpful assistant.
-    temperature: 0.7
-    max_tokens: 1200
-
   - key: frontend
     name: "Front End Developer"
     model: "gpt-4-32k"
