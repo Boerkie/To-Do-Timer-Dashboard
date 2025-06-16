@@ -31,7 +31,6 @@
 </script>
 
 <section class="tags-list">
-  <h2>Tags</h2>
   <div class="palette">
     {#each tags as tag}
       <span
@@ -39,21 +38,36 @@
         style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]?.fg};border-color:{get(tagStyles)[tag]?.border}"
         draggable="true"
         on:contextmenu|preventDefault={() => startEdit(tag)}
-        on:dragstart={(e) => e.dataTransfer.setData('text/tag', tag)}
+        on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/tag', tag)}
         >{tag}</span
       >
     {/each}
   </div>
 
   {#if editTag}
-    <div class="edit-dialog">
-      <input type="text" bind:value={newName} />
-      <input type="color" bind:value={bg} />
-      <input type="color" bind:value={fg} />
-      <input type="color" bind:value={border} />
-      <button on:click={saveEdit}>Save</button>
-      <button on:click={() => (editTag = null)}>Cancel</button>
-    </div>
+    <table class="edit-dialog">
+      <tbody>
+        <tr>
+          <td colspan="2"><input type="text" bind:value={newName} /></td>
+        </tr>
+        <tr>
+          <td>Background</td>
+          <td><input type="color" bind:value={bg} /></td>
+        </tr>
+        <tr>
+          <td>Text</td>
+          <td><input type="color" bind:value={fg} /></td>
+        </tr>
+        <tr>
+          <td>Border</td>
+          <td><input type="color" bind:value={border} /></td>
+        </tr>
+        <tr>
+          <td><button on:click={saveEdit}>Save</button></td>
+          <td><button on:click={() => (editTag = null)}>Cancel</button></td>
+        </tr>
+      </tbody>
+    </table>
   {/if}
 </section>
 
@@ -70,7 +84,16 @@
 }
 .edit-dialog {
   margin-top: 0.5rem;
-  display: flex;
-  gap: 0.25rem;
+  border-collapse: collapse;
+  width: 100%;
+}
+.edit-dialog td {
+  padding: 0.25rem;
+}
+.edit-dialog input[type='color'] {
+  width: 100%;
+}
+.edit-dialog button {
+  width: 100%;
 }
 </style>

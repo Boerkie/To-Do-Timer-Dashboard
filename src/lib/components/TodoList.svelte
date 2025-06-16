@@ -20,12 +20,11 @@
 </script>
 
 <section class="todo-list">
-  <h2>To-Do</h2>
   <ul
     on:dragover|preventDefault
-    on:drop={(e) => {
-      const id = e.dataTransfer.getData('text/task');
-      const activeId = e.dataTransfer.getData('text/active');
+    on:drop={(e: DragEvent) => {
+      const id = e.dataTransfer?.getData('text/task');
+      const activeId = e.dataTransfer?.getData('text/active');
       if (id) reorderTodo(id, null);
       if (activeId) deactivateTask(activeId);
     }}
@@ -34,12 +33,12 @@
       <li
         class="task-row"
         draggable="true"
-        on:dragstart={(e) => e.dataTransfer.setData('text/task', t.id)}
+        on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/task', t.id)}
         on:dragover|preventDefault={() => {}}
-        on:drop={(e) => {
-          const id = e.dataTransfer.getData('text/task');
+        on:drop={(e: DragEvent) => {
+          const id = e.dataTransfer?.getData('text/task');
           if (id && id !== t.id) reorderTodo(id, t.id);
-          const tag = e.dataTransfer.getData('text/tag');
+          const tag = e.dataTransfer?.getData('text/tag');
           if (tag && !t.tags.includes(tag)) {
             tasksStore.update((list) => {
               const task = list.find((x) => x.id === t.id);
