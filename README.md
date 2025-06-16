@@ -4,7 +4,6 @@ This project is a SvelteKit based application for tracking tasks with timed acti
 
 Core requirements are documented in [REQUIREMENTS.md](REQUIREMENTS.md).
 Component stubs are detailed in [components.md](components.md).
-See [docs/README.md](docs/README.md) for a short overview.
 
 ---
 # sv
