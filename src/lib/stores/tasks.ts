@@ -148,8 +148,9 @@ export function cyclePriority(id: string) {
   tasks.update((list) => {
     const task = list.find((t) => t.id === id);
     if (task) {
+      // follow priority cycle P4 -> P3 -> P2 -> P1 -> P4
       const current = task.priority ?? 4;
-      task.priority = current === 4 ? 1 : current + 1;
+      task.priority = current === 4 ? 3 : current === 3 ? 2 : current === 2 ? 1 : 4;
     }
     return [...list];
   });

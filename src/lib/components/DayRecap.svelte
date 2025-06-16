@@ -40,20 +40,23 @@
 
   onDestroy(() => clearInterval(timer));
 
-  const periods = derived([tasks, now], ([$tasks, $now]) => {
-    const res: Array<{ task: TodoTask; start: number; end: number }> = [];
-    $tasks.forEach((task) =>
+  const recapData = derived([tasks, now], ([$tasks, $now]) => {
+    const map = new Map<string, { task: TodoTask; periods: Array<{ start: number; end: number }> }>();
+    $tasks.forEach((task) => {
       task.activePeriods?.forEach((p: ActivePeriod) => {
         const s = new Date(p.start).getTime();
         const e = p.end ? new Date(p.end).getTime() : $now;
         if (s < dayEndMs && e > dayStartMs) {
           const start = Math.max(s, dayStartMs);
           const end = Math.min(e, dayEndMs);
-          if (end > start) res.push({ task, start, end });
+          if (end > start) {
+            if (!map.has(task.id)) map.set(task.id, { task, periods: [] });
+            map.get(task.id)!.periods.push({ start, end });
+          }
         }
-      })
-    );
-    return res.sort((a, b) => a.start - b.start);
+      });
+    });
+    return Array.from(map.values()).sort((a, b) => a.periods[0].start - b.periods[0].start);
   });
 
   const rangeMs = () => dayEndMs - dayStartMs;
@@ -65,23 +68,18 @@
   </header>
 
   <div class="timeline-container">
-    {#each $periods as { start }, i}
-      <span
-        class="axis-label"
-        style:left={(start - dayStartMs) / rangeMs() * 100 + '%'}
-      >
-        {new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-      </span>
-    {/each}
-
-    {#each $periods as { task, start, end }, i}
-      <div
-        class="bar"
-        title={`${task.title}: ${new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – ${new Date(end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-        style:top={i * 1.5 + 'rem'}
-        style:left={(start - dayStartMs) / rangeMs() * 100 + '%'}
-        style:width={(end - start) / rangeMs() * 100 + '%'}
-      ></div>
+    {#each $recapData as { task, periods }, row}
+      <div class="task-line" style:top={row * 1.5 + 'rem'}>
+        <span class="task-label">{task.title}</span>
+        {#each periods as { start, end }}
+          <div
+            class="bar"
+            title={`${task.title}: ${new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – ${new Date(end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+            style:left={(start - dayStartMs) / rangeMs() * 100 + '%'}
+            style:width={(end - start) / rangeMs() * 100 + '%'}
+          ></div>
+        {/each}
+      </div>
     {/each}
 
     <div class="marker start" style:left="0%">DS</div>
@@ -101,18 +99,26 @@
     margin-top: 1rem;
   }
 
-  .axis-label {
-    position: absolute;
-    top: -1.5rem;
-    transform: translateX(-50%);
-    font-size: 0.75rem;
-  }
-
   .bar {
     position: absolute;
     height: 1rem;
     background: var(--accent);
     border-radius: 0.25rem;
+  }
+
+  .task-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1.5rem;
+  }
+
+  .task-label {
+    position: absolute;
+    left: -0.5rem;
+    transform: translateX(-100%);
+    font-size: 0.75rem;
+    white-space: nowrap;
   }
 
   .marker {

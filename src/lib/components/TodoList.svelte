@@ -13,6 +13,26 @@
   import { get } from 'svelte/store';
   export let tasks: TodoTask[] = [];
 
+  // format milliseconds into HH:MM:SS
+  function formatDuration(ms: number): string {
+    const sec = Math.floor(ms / 1000);
+    const h = Math.floor(sec / 3600)
+      .toString()
+      .padStart(2, '0');
+    const m = Math.floor((sec % 3600) / 60)
+      .toString()
+      .padStart(2, '0');
+    const s = Math.floor(sec % 60)
+      .toString()
+      .padStart(2, '0');
+    return `${h}:${m}:${s}`;
+  }
+
+  // compute total active time for a task
+  function totalTime(t: TodoTask): number {
+    return t.activePeriods.reduce((sum, p) => sum + ((p.end ?? Date.now()) - p.start), 0);
+  }
+
   let newTask = '';
 
   function submit() {
@@ -22,7 +42,7 @@
 </script>
 
 <section class="todo-list">
-  <ul
+  <ol
     on:dragover|preventDefault
     on:drop={(e: DragEvent) => {
       const id = e.dataTransfer?.getData('text/task');
@@ -51,13 +71,16 @@
           }
         }}
       >
-        <span
-          class="priority p{t.priority ?? 4}"
-          title={PRIORITY_LABELS[t.priority ?? 4]}
-          on:click={() => cyclePriority(t.id)}
-        ></span>
-        <span class="title">{t.title}</span>
-        <span class="tags">
+        <div class="row">
+          <span
+            class="priority p{t.priority ?? 4}"
+            title={PRIORITY_LABELS[t.priority ?? 4]}
+            on:click={() => cyclePriority(t.id)}
+          ></span>
+          <span class="title">{t.title}</span>
+          <span class="time">{formatDuration(totalTime(t))}</span>
+        </div>
+        <div class="tags">
           {#each [...t.tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })) as tag}
             <span
               class="tag-pill"
@@ -65,10 +88,10 @@
               >{tag}</span
             >
           {/each}
-        </span>
+        </div>
       </li>
     {/each}
-  </ul>
+  </ol>
   <div class="add-bar">
     <input
       type="text"
@@ -83,21 +106,26 @@
 <style>
 .todo-list { padding: 1rem; }
 .task-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   margin-bottom: 0.25rem;
   background: var(--bg-box);
   border: 1px solid var(--border);
 }
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
 .task-row .priority {
   width: 0.75rem;
   height: 0.75rem;
-  margin-right: 0.5rem;
   border-radius: 0.1rem;
   cursor: pointer;
+}
+.task-row .time {
+  font-size: 0.8rem;
 }
 .p1 { background: #ff5555; }
 .p2 { background: #ff9900; }
@@ -108,8 +136,9 @@
 }
 .task-row .tags {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.25rem;
-  margin-left: 0.5rem;
+  margin-top: 0.25rem;
 }
 .tag-pill {
   padding: 0.1rem 0.3rem;
@@ -121,5 +150,10 @@
   margin-top: 0.5rem;
   display: flex;
   gap: 0.5rem;
+}
+
+ol {
+  list-style-position: outside;
+  padding-left: 2rem;
 }
 </style>
