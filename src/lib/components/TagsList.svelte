@@ -1,17 +1,23 @@
 <script lang="ts">
-  import { tagStyles } from '$lib';
+  import { tagStyles, renameTag, tagFilter, tagFilterAnd } from '$lib';
   import { get } from 'svelte/store';
 
   export let tags: string[] = [];
 
   let editTag: string | null = null;
   let newName = '';
-  let bg = '#eee';
-  let fg = '#000';
-  let border = '#ccc';
+  let bg = '#eeeeee';
+  let fg = '#000000';
+  let border = '#cccccc';
+  let selected: string[] = [];
+  $: selected = $tagFilter;
 
   function startEdit(tag: string) {
-    const style = get(tagStyles)[tag] || { bg: '#eee', fg: '#000', border: '#ccc' };
+    const style = get(tagStyles)[tag] || {
+      bg: '#eeeeee',
+      fg: '#000000',
+      border: '#cccccc'
+    };
     editTag = tag;
     newName = tag;
     bg = style.bg;
@@ -26,7 +32,20 @@
       styles[newName] = { name: newName, bg, fg, border };
       return styles;
     });
+    if (newName !== editTag) {
+      renameTag(editTag, newName);
+    }
     editTag = null;
+  }
+
+  function toggleTag(tag: string) {
+    tagFilter.update((list) =>
+      list.includes(tag) ? list.filter((t) => t !== tag) : [...list, tag]
+    );
+  }
+
+  function toggleMode() {
+    tagFilterAnd.update((v) => !v);
   }
 </script>
 
@@ -34,15 +53,23 @@
   <div class="palette">
     {#each tags as tag}
       <span
-        class="tag-pill"
+        class="tag-pill {selected.includes(tag) ? 'selected' : ''}"
         style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]?.fg};border-color:{get(tagStyles)[tag]?.border}"
         draggable="true"
         on:contextmenu|preventDefault={() => startEdit(tag)}
         on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/tag', tag)}
+        on:click={() => toggleTag(tag)}
         >{tag}</span
       >
     {/each}
   </div>
+
+  {#if selected.length}
+    <div class="filter-mode">
+      Filter mode:
+      <button on:click={toggleMode}>{$tagFilterAnd ? 'AND' : 'OR'}</button>
+    </div>
+  {/if}
 
   {#if editTag}
     <table class="edit-dialog">
@@ -76,11 +103,17 @@
 .palette { display: flex; gap: 0.25rem; flex-wrap: wrap; }
 .tag-pill {
   padding: 0.2rem 0.5rem;
-  border: 1px solid var(--border);
+  border: var(--tag-border-width, 2px) solid var(--border);
   border-radius: 0.5rem;
   font-size: 0.75rem;
   user-select: none;
   cursor: grab;
+}
+.tag-pill.selected {
+  outline: 2px solid var(--accent);
+}
+.filter-mode {
+  margin-top: 0.5rem;
 }
 .edit-dialog {
   margin-top: 0.5rem;

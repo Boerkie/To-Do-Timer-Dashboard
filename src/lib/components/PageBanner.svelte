@@ -40,18 +40,15 @@
 <header class="page-banner">
   <h1>⏳ TODO Timer Dashboard</h1>
   <div class="actions">
-    <button on:click={exportData}>Export</button>
-    <button on:click={importData}>Import</button>
-    <button on:click={toggleCleared}>{$showCleared ? 'Hide Cleared' : 'Show Cleared'}</button>
     <button on:click={() => (showModal = true)} title="Settings">⚙️ Settings</button>
   </div>
 </header>
 
 {#if showModal}
   <div class="modal-overlay" on:click={cancel}>
-    <div class="modal" on:click|stopPropagation>
+  <div class="modal" on:click|stopPropagation>
       <h2>Settings</h2>
-      <form on:submit|preventDefault={saveSettings}>
+      <form on:submit|preventDefault={saveSettings} class="settings-form">
         <label>
           Day Start:
           <input type="time" bind:value={localSettings.dayStart} required />
@@ -67,6 +64,15 @@
             <option value="dark">Dark</option>
           </select>
         </label>
+        <label>
+          Tag Border Width:
+          <input type="number" min="0" bind:value={localSettings.tagBorderWidth} />
+        </label>
+        <div class="form-buttons">
+          <button type="button" on:click={exportData}>Export</button>
+          <button type="button" on:click={importData}>Import</button>
+          <button type="button" on:click={toggleCleared}>{$showCleared ? 'Hide Cleared' : 'Show Cleared'}</button>
+        </div>
 
         <div class="modal-actions">
           <button type="submit">Save</button>
@@ -102,6 +108,24 @@
     border-radius: 0.5rem;
     width: 300px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+  .settings-form {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 0.75rem;
+  }
+  .settings-form label {
+    display: contents;
+  }
+  .settings-form input,
+  .settings-form select {
+    width: 100%;
+  }
+  .form-buttons {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
   }
   .modal-actions {
     margin-top: 1rem;

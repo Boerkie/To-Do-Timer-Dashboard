@@ -5,6 +5,7 @@
   import { onMount, onDestroy } from 'svelte';
 
   export let task: TodoTask | null = null;
+  let detailsSection: HTMLElement;
 
   let now = Date.now();
   let timer: ReturnType<typeof setInterval>;
@@ -64,7 +65,7 @@
   }
 </script>
 
-<section class="advanced-details">
+<section class="advanced-details" bind:this={detailsSection}>
   {#if task}
     <div class="header">
       <h3>{task.title}</h3>
@@ -74,13 +75,16 @@
     <div class="readonly">Today: {formatDuration(totalToday)}</div>
     <div class="readonly">Created: {new Date(task.createdAt).toLocaleString()}</div>
     <div class="tags">
-      {#each [...task.tags].sort() as tag}
+      {#each [...task.tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })) as tag}
         <span
           class="tag-pill"
           draggable="true"
-          on:dragstart={(e: DragEvent) => {
-            e.dataTransfer?.setData('text/tag', tag);
-            removeTag(tag);
+          on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/tag', tag)}
+          on:dragend={(e: DragEvent) => {
+            const el = detailsSection;
+            if (!el.contains(document.elementFromPoint(e.clientX, e.clientY))) {
+              removeTag(tag);
+            }
           }}
           style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]?.fg};border-color:{get(tagStyles)[tag]?.border}"
           >{tag}</span
@@ -126,7 +130,7 @@
   .tag-pill {
     padding: 0.2rem 0.5rem;
     border-radius: 0.5rem;
-    border: 1px solid var(--border);
+    border: var(--tag-border-width, 2px) solid var(--border);
     font-size: 0.75rem;
     cursor: grab;
   }

@@ -30,7 +30,7 @@ export const tagStyles = createTagStyles();
 export function ensureTagStyle(name: string) {
   tagStyles.update((styles) => {
     if (!styles[name]) {
-      styles[name] = { name, bg: '#eee', fg: '#000', border: '#ccc' };
+      styles[name] = { name, bg: '#eeeeee', fg: '#000000', border: '#cccccc' };
     }
     return styles;
   });

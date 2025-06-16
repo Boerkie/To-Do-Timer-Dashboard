@@ -1,17 +1,30 @@
 <script lang="ts">
   import type { TodoTask } from '$lib/types';
-  import { activateTask, tagStyles } from '$lib';
+  import { activateTask, tagStyles, tasks as tasksStore, settings } from '$lib';
   import { get } from 'svelte/store';
   import { onMount, onDestroy } from 'svelte';
   export let task: TodoTask | null = null;
 
   let now = Date.now();
   let timer: ReturnType<typeof setInterval>;
+  let dayStart = 0;
+  let dayEnd = 0;
+  const unsubscribeSettings = settings.subscribe(({ dayStart: ds, dayEnd: de }) => {
+    const [sh, sm] = ds.split(':').map(Number);
+    const [eh, em] = de.split(':').map(Number);
+    const base = new Date().toISOString().slice(0,10);
+    const baseDate = new Date(base);
+    dayStart = new Date(baseDate).setHours(sh, sm, 0, 0);
+    dayEnd = new Date(baseDate).setHours(eh, em, 0, 0);
+  });
 
   onMount(() => {
     timer = setInterval(() => (now = Date.now()), 1000);
   });
-  onDestroy(() => clearInterval(timer));
+  onDestroy(() => {
+    clearInterval(timer);
+    unsubscribeSettings();
+  });
 
   function formatDuration(ms: number): string {
     const sec = Math.floor(ms / 1000);
@@ -28,10 +41,11 @@
   }
 
   $: totalTime = task
-    ? task.activePeriods.reduce(
-        (sum, p) => sum + ((p.end ?? now) - p.start),
-        0
-      )
+    ? task.activePeriods.reduce((sum, p) => {
+        const start = Math.max(p.start, dayStart);
+        const end = Math.min(p.end ?? now, dayEnd);
+        return end > start ? sum + (end - start) : sum;
+      }, 0)
     : 0;
 </script>
 
@@ -40,7 +54,15 @@
   on:dragover|preventDefault
   on:drop={(e: DragEvent) => {
     const id = e.dataTransfer?.getData('text/task');
+    const tag = e.dataTransfer?.getData('text/tag');
     if (id) activateTask(id);
+    if (tag && task && !task.tags.includes(tag)) {
+      tasksStore.update((list) => {
+        const t = list.find((x) => x.id === task.id);
+        if (t) t.tags = [...t.tags, tag];
+        return [...list];
+      });
+    }
   }}
 >
   {#if task}
@@ -54,7 +76,7 @@
         <span class="time">{formatDuration(totalTime)}</span>
       </div>
       <div class="tags">
-        {#each [...task.tags].sort() as tag}
+        {#each [...task.tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })) as tag}
           <span
             class="tag-pill"
             style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]?.fg};border-color:{get(tagStyles)[tag]?.border}"
@@ -92,7 +114,7 @@
 }
 .tag-pill {
   padding: 0.1rem 0.3rem;
-  border: 1px solid var(--border);
+  border: var(--tag-border-width, 2px) solid var(--border);
   border-radius: 0.5rem;
   font-size: 0.7rem;
 }
