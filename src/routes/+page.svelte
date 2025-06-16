@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
   import {
     PageBanner,
     DayRecap,
@@ -8,38 +7,21 @@
     ClearedList,
     AdvancedDetails,
     TagsList,
-    tasks,
+    todoTasks,
     clearedTasks,
     activeTask,
     selectedDate,
     tags
   } from '$lib';
-  import { settings } from '$lib/stores/settings';
-
-  let themeClass = '';
-  let unsubscribe: () => void;
-
-  onMount(() => {
-    // Subscribe only on client to avoid SSR errors
-    unsubscribe = settings.subscribe(({ theme }) => {
-      themeClass = theme === 'dark' ? 'theme-dark' : 'theme-light';
-      document.documentElement.classList.toggle('theme-dark', theme === 'dark');
-      document.documentElement.classList.toggle('theme-light', theme === 'light');
-    });
-  });
-
-  onDestroy(() => {
-    unsubscribe && unsubscribe();
-  });
 </script>
 
 <PageBanner />
-<div class="app-grid {themeClass}">
+<div class="app-grid">
   <!-- Left panel: Recap -->
   <div class="left-panel">
     <div class="box-title">Recap</div>
     <div class="box recap-box">
-      <DayRecap date={$selectedDate} />
+      <DayRecap selectedDate={$selectedDate} />
     </div>
   </div>
 
@@ -55,7 +37,7 @@
       <button id="cleared-tab-btn" type="button">Cleared</button>
     </div>
     <div class="box todo-list-box">
-      <TodoList tasks={$tasks} />
+      <TodoList tasks={$todoTasks} />
     </div>
 
     <div class="box-title">Cleared</div>
@@ -78,16 +60,6 @@
 </div>
 
 <style>
-  :global(.theme-light) {
-    --bg-panel: #f5f5f5;
-    --bg-box: #ffffff;
-    --text-color: #1e1e2f;
-  }
-  :global(.theme-dark) {
-    --bg-panel: #1e1e2f;
-    --bg-box: #2e2e42;
-    --text-color: #f5f5f5;
-  }
 
   .app-grid {
     display: grid;
