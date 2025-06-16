@@ -2,27 +2,36 @@ import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { TodoTask } from '$lib/types';
 import { ensureTagStyle } from './tagStyles';
-import { tagFilter, tagFilterAnd } from './ui';
+import { tagFilter, tagFilterAnd, priorityFilter } from './ui';
 
 /** Parse an input string and extract tags prefixed with '#'.
  * Returns the cleaned title and array of tags.
  */
-function parseInput(input: string): { title: string; tags: string[] } {
+function parseInput(
+  input: string
+): { title: string; tags: string[]; priority: number } {
   const tags: string[] = [];
+  let priority = 4;
+  const prioMatch = input.match(/!([1-4])/);
+  if (prioMatch) {
+    priority = parseInt(prioMatch[1]);
+    input = input.replace(prioMatch[0], '');
+  }
   const withoutTags = input.replace(/#([A-Za-z0-9_-]+)/g, (_, tag) => {
     tags.push(tag);
     ensureTagStyle(tag);
     return '';
   });
-  return { title: withoutTags.trim(), tags };
+  return { title: withoutTags.trim(), tags, priority };
 }
 
-function createTask(title: string, tags: string[]): TodoTask {
+function createTask(title: string, tags: string[], priority: number): TodoTask {
   const now = Date.now();
   return {
     id: crypto.randomUUID(),
     title,
     tags,
+    priority,
     activePeriods: [],
     totalTimeToday: 0,
     createdAt: now,
@@ -135,11 +144,22 @@ export function renameTag(oldName: string, newName: string) {
   });
 }
 
+export function cyclePriority(id: string) {
+  tasks.update((list) => {
+    const task = list.find((t) => t.id === id);
+    if (task) {
+      const current = task.priority ?? 4;
+      task.priority = current === 4 ? 1 : current + 1;
+    }
+    return [...list];
+  });
+}
+
 /** Add a new task from an input string. */
 export function addTask(input: string): void {
-  const { title, tags } = parseInput(input);
+  const { title, tags, priority } = parseInput(input);
   if (!title && tags.length === 0) return;
-  const task = createTask(title, tags);
+  const task = createTask(title, tags, priority);
   tasks.update((list) => [...list, task]);
 }
 
@@ -157,8 +177,8 @@ export const clearedTasks = derived(tasks, ($tasks) =>
 );
 
 export const todoTasks = derived(
-  [tasks, tagFilter, tagFilterAnd],
-  ([$tasks, $filter, $and]) => {
+  [tasks, tagFilter, tagFilterAnd, priorityFilter],
+  ([$tasks, $filter, $and, $prio]) => {
     let res = $tasks.filter((t) => !t.isDone && !isTaskActive(t));
     if ($filter.length) {
       res = res.filter((t) =>
@@ -166,6 +186,9 @@ export const todoTasks = derived(
           ? $filter.every((tag) => t.tags.includes(tag))
           : $filter.some((tag) => t.tags.includes(tag))
       );
+    }
+    if ($prio !== null) {
+      res = res.filter((t) => (t.priority ?? 4) === $prio);
     }
     return res;
   }

@@ -6,7 +6,9 @@
     deactivateTask,
     reorderTodo,
     tagStyles,
-    tasks as tasksStore
+    tasks as tasksStore,
+    cyclePriority,
+    PRIORITY_LABELS
   } from '$lib';
   import { get } from 'svelte/store';
   export let tasks: TodoTask[] = [];
@@ -49,7 +51,11 @@
           }
         }}
       >
-        <span class="priority"></span>
+        <span
+          class="priority p{t.priority ?? 4}"
+          title={PRIORITY_LABELS[t.priority ?? 4]}
+          on:click={() => cyclePriority(t.id)}
+        ></span>
         <span class="title">{t.title}</span>
         <span class="tags">
           {#each [...t.tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })) as tag}
@@ -89,10 +95,14 @@
 .task-row .priority {
   width: 0.75rem;
   height: 0.75rem;
-  background: #888;
   margin-right: 0.5rem;
   border-radius: 0.1rem;
+  cursor: pointer;
 }
+.p1 { background: #ff5555; }
+.p2 { background: #ff9900; }
+.p3 { background: #22aa22; }
+.p4 { background: #888888; }
 .task-row .title {
   flex: 1;
 }

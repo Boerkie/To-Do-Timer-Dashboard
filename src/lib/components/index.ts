@@ -5,3 +5,4 @@ export { default as TodoList } from './TodoList.svelte';
 export { default as ClearedList } from './ClearedList.svelte';
 export { default as AdvancedDetails } from './AdvancedDetails.svelte';
 export { default as TagsList } from './TagsList.svelte';
+export { default as PriorityFilter } from './PriorityFilter.svelte';
