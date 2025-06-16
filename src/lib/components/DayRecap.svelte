@@ -61,7 +61,6 @@
 
 <section class="day-recap">
   <header>
-    <h2>Recap</h2>
     <input type="date" bind:value={dateString} on:change={onDateChange} />
   </header>
 

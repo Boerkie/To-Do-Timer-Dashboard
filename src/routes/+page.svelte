@@ -11,7 +11,8 @@
     clearedTasks,
     activeTask,
     selectedDate,
-    tags
+    tags,
+    showCleared
   } from '$lib';
 </script>
 
@@ -34,16 +35,17 @@
 
     <div class="header-row">
       <div class="box-title">TO DO List</div>
-      <button id="cleared-tab-btn" type="button">Cleared</button>
     </div>
     <div class="box todo-list-box">
       <TodoList tasks={$todoTasks} />
     </div>
 
-    <div class="box-title">Cleared</div>
-    <div class="box cleared-box">
-      <ClearedList tasks={$clearedTasks} />
-    </div>
+    {#if $showCleared}
+      <div class="box-title">Cleared</div>
+      <div class="box cleared-box">
+        <ClearedList tasks={$clearedTasks} />
+      </div>
+    {/if}
   </div>
 
   <!-- Right panel: Details and Tags -->
@@ -97,9 +99,12 @@
     padding-left: 0.5rem;
   }
   .active-box,
-  .todo-list-box,
   .cleared-box {
     max-height: 200px;
+    overflow-y: auto;
+  }
+  .todo-list-box {
+    max-height: 30rem;
     overflow-y: auto;
   }
 </style>

@@ -54,11 +54,12 @@ export const tasks = createTasks();
 export function activateTask(id: string) {
   const now = Date.now();
   tasks.update((list) => {
-    // End any current active task
+    let previous: TodoTask | undefined;
     list.forEach((t) => {
       const last = t.activePeriods[t.activePeriods.length - 1];
       if (last && last.end === null) {
         last.end = now;
+        previous = t;
       }
     });
 
@@ -66,6 +67,14 @@ export function activateTask(id: string) {
     if (task) {
       task.activePeriods.push({ start: now, end: null });
       task.updatedAt = now;
+    }
+
+    if (previous && previous.id !== id) {
+      const idx = list.findIndex((t) => t.id === previous!.id);
+      if (idx > -1) {
+        list.splice(idx, 1);
+        list.unshift(previous!);
+      }
     }
     return [...list];
   });

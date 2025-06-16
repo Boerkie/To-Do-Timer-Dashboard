@@ -5,11 +5,10 @@
 </script>
 
 <section class="cleared-list">
-  <h2>Cleared</h2>
   <ul
     on:dragover|preventDefault
-    on:drop={(e) => {
-      const activeId = e.dataTransfer.getData('text/active');
+    on:drop={(e: DragEvent) => {
+      const activeId = e.dataTransfer?.getData('text/active');
       if (activeId) clearTask(activeId);
     }}
   >

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { settings } from '$lib/stores/settings';
   import type { Settings } from '$lib/stores/settings';
+  import { showCleared } from '$lib';
   import { onDestroy } from 'svelte';
 
   let showModal = false;
@@ -29,6 +30,10 @@
     dispatchEvent(event);
   }
 
+  function toggleCleared() {
+    showCleared.update(v => !v);
+  }
+
   onDestroy(unsubscribe);
 </script>
 
@@ -37,7 +42,8 @@
   <div class="actions">
     <button on:click={exportData}>Export</button>
     <button on:click={importData}>Import</button>
-    <button on:click={() => (showModal = true)} title="Settings">⚙️</button>
+    <button on:click={toggleCleared}>{$showCleared ? 'Hide Cleared' : 'Show Cleared'}</button>
+    <button on:click={() => (showModal = true)} title="Settings">⚙️ Settings</button>
   </div>
 </header>
 
