@@ -5,6 +5,10 @@
   let unsubscribe: () => void;
 
   onMount(() => {
+    const banner = document.querySelector('.page-banner') as HTMLElement;
+    if (banner) {
+      document.documentElement.style.setProperty('--header-height', `${banner.offsetHeight}px`);
+    }
     unsubscribe = settings.subscribe(({ theme, tagBorderWidth }) => {
       document.documentElement.classList.toggle('theme-dark', theme === 'dark');
       document.documentElement.classList.toggle('theme-light', theme === 'light');
@@ -22,6 +26,7 @@
 <style>
   :global(:root) {
     --tag-border-width: 2px;
+    --header-height: 70px;
   }
   :global(.theme-light) {
     --bg-panel: #fafbfc;
