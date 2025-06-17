@@ -110,7 +110,9 @@
   }
   .todo-list-box {
     max-height: 30rem;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     border-width: 3px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   }
