@@ -1,6 +1,6 @@
 # TODO Timer Dashboard Documentation
 
-This README outlines the interface and lists the core requirements that govern the TODO Timer Dashboard.
+This README summarises the interface, core application rules and the requirements for maintaining these documents. All guidance lives in this single file.
 
 ## Interface Overview
 

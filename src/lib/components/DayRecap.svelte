@@ -131,7 +131,7 @@
   .timeline-wrapper {
     position: relative;
     flex: 1;
-    overflow-y: auto;
+    overflow: hidden;
     margin-top: 1.5rem;
   }
   .time-grid {

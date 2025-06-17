@@ -82,7 +82,7 @@
     grid-template-columns: 1fr 2fr 1fr;
     gap: 1rem;
     padding: 1rem;
-    min-height: 100vh;
+    height: calc(100vh - var(--header-height));
     background-color: var(--bg-panel);
     color: var(--text-color);
     box-sizing: border-box;
@@ -95,6 +95,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    height: 100%;
+    min-height: 0;
   }
   .box {
     background-color: var(--bg-box);
@@ -107,9 +109,8 @@
   .recap-box {
     flex: 1;
     display: flex;
-    overflow-x: hidden;
-    overflow-y: auto;
-    max-height: calc(100vh - var(--header-height));
+    overflow: hidden;
+    min-height: 0;
   }
   .header-row {
     display: flex;
