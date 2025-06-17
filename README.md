@@ -2,7 +2,7 @@
 
 This project is a SvelteKit based application for tracking tasks with timed active periods.
 
-Core requirements are documented in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md).
+Detailed interface information and requirements are in [docs/README.md](docs/README.md).
 Component stubs are detailed in [components.md](components.md).
 
 ---
