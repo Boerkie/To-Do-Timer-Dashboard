@@ -135,6 +135,16 @@ export function reorderTodo(id: string, beforeId: string | null) {
   });
 }
 
+export function moveToTop(id: string) {
+  tasks.update((list) => {
+    const idx = list.findIndex((t) => t.id === id);
+    if (idx === -1) return list;
+    const [task] = list.splice(idx, 1);
+    list.unshift(task);
+    return [...list];
+  });
+}
+
 export function renameTag(oldName: string, newName: string) {
   tasks.update((list) => {
     list.forEach((t) => {

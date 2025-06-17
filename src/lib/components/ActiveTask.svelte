@@ -2,6 +2,9 @@
   import type { TodoTask } from '$lib/types';
   import {
     activateTask,
+    deactivateTask,
+    clearTask,
+    moveToTop,
     tagStyles,
     tasks as tasksStore,
     settings,
@@ -11,6 +14,8 @@
   import { get } from 'svelte/store';
   import { onMount, onDestroy } from 'svelte';
   export let task: TodoTask | null = null;
+
+  let showActions = false;
 
   let now = Date.now();
   let timer: ReturnType<typeof setInterval>;
@@ -76,8 +81,33 @@
     <div
       class="current"
       draggable="true"
-      on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/active', task.id)}
+      on:dragstart={(e: DragEvent) => {
+        showActions = true;
+        e.dataTransfer?.setData('text/active', task.id);
+      }}
+      on:dragend={() => (showActions = false)}
     >
+      <div
+        class="action drop-left"
+        class:visible={showActions}
+        on:dragover|preventDefault
+        on:drop={(e: DragEvent) => {
+          e.stopPropagation();
+          moveToTop(task.id);
+          deactivateTask(task.id);
+          showActions = false;
+        }}
+      >❌</div>
+      <div
+        class="action drop-right"
+        class:visible={showActions}
+        on:dragover|preventDefault
+        on:drop={(e: DragEvent) => {
+          e.stopPropagation();
+          clearTask(task.id);
+          showActions = false;
+        }}
+      >✅</div>
       <div class="row">
         <span
           class="prio p{task.priority ?? 4}"
@@ -107,6 +137,7 @@
   padding: 0;
 }
 .current {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -114,7 +145,6 @@
   background: var(--bg-box);
   border: 1px solid var(--border);
   border-radius: 0.25rem;
-  transform: scale(1.05);
 }
 .row {
   display: flex;
@@ -143,5 +173,30 @@
   border: var(--tag-border-width, 2px) solid var(--border);
   border-radius: 0.5rem;
   font-size: 0.7rem;
+}
+
+.action {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2.5rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  user-select: none;
+}
+.drop-left {
+  left: 0;
+  background: #ffdddd;
+  border-right: 2px solid #ff4444;
+}
+.drop-right {
+  right: 0;
+  background: #ddffdd;
+  border-left: 2px solid #44aa44;
+}
+.visible {
+  display: flex;
 }
 </style>

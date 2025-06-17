@@ -6,13 +6,15 @@ export interface Settings {
   dayEnd: string;   // HH:MM
   theme: 'light' | 'dark';
   tagBorderWidth: number;
+  showListNumbers: boolean;
 }
 
 const DEFAULT_SETTINGS: Settings = {
   dayStart: '08:00',
   dayEnd: '18:00',
   theme: 'dark',
-  tagBorderWidth: 2
+  tagBorderWidth: 2,
+  showListNumbers: true
 };
 
 function createSettings() {
