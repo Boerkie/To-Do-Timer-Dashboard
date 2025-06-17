@@ -10,4 +10,4 @@ This document describes the core UI components used in the TODO Timer Dashboard.
 - **AdvancedDetails** – Placeholder area for additional details about the active task.
 - **TagsList** – Shows all tags known to the system.
 
-These components implement the features outlined in [REQUIREMENTS.md](../REQUIREMENTS.md) and are intended as starting points for further development.
+These components implement the features outlined in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) and are intended as starting points for further development.
