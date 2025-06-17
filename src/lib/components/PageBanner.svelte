@@ -68,6 +68,10 @@
           Tag Border Width:
           <input type="number" min="0" bind:value={localSettings.tagBorderWidth} />
         </label>
+        <label>
+          Show List Numbers:
+          <input type="checkbox" bind:checked={localSettings.showListNumbers} />
+        </label>
         <div class="form-buttons">
           <button type="button" on:click={exportData}>Export</button>
           <button type="button" on:click={importData}>Import</button>

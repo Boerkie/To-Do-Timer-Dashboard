@@ -10,6 +10,7 @@
     cyclePriority,
     PRIORITY_LABELS
   } from '$lib';
+  import { settings } from '$lib/stores/settings';
   import { get } from 'svelte/store';
   export let tasks: TodoTask[] = [];
 
@@ -43,6 +44,7 @@
 
 <section class="todo-list">
   <ol
+    class:hideNumbers={!$settings.showListNumbers}
     on:dragover|preventDefault
     on:drop={(e: DragEvent) => {
       const id = e.dataTransfer?.getData('text/task');
@@ -139,6 +141,7 @@
   flex-wrap: wrap;
   gap: 0.25rem;
   margin-top: 0.25rem;
+  justify-content: flex-end;
 }
 .tag-pill {
   padding: 0.1rem 0.3rem;
@@ -155,5 +158,10 @@
 ol {
   list-style-position: outside;
   padding-left: 2rem;
+}
+
+.hideNumbers {
+  list-style: none;
+  padding-left: 0;
 }
 </style>
