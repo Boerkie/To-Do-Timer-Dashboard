@@ -38,7 +38,7 @@
 </script>
 
 <header class="page-banner">
-  <h1>⏳ TODO Timer Dashboard</h1>
+  <h1>⏳ {$settings.userName}'s TODO Timer Dashboard</h1>
   <div class="actions">
     <button on:click={() => (showModal = true)} title="Settings">⚙️ Settings</button>
   </div>
@@ -49,6 +49,10 @@
   <div class="modal" on:click|stopPropagation>
       <h2>Settings</h2>
       <form on:submit|preventDefault={saveSettings} class="settings-form">
+        <label>
+          Name:
+          <input type="text" bind:value={localSettings.userName} />
+        </label>
         <label>
           Day Start:
           <input type="time" bind:value={localSettings.dayStart} required />
@@ -89,11 +93,19 @@
 
 <style>
   .page-banner {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     padding: 1rem;
     background-color: var(--banner-bg);
+  }
+  .page-banner h1 {
+    grid-column: 2;
+    text-align: center;
+  }
+  .actions {
+    grid-column: 3;
+    justify-self: end;
   }
   .actions button {
     margin-left: 0.5rem;

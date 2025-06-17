@@ -15,6 +15,9 @@
     tags,
     showCleared
   } from '$lib';
+
+  let boundDate: Date = $selectedDate;
+  $: selectedDate.set(boundDate);
 </script>
 
 <PageBanner />
@@ -23,7 +26,7 @@
   <div class="left-panel">
     <div class="box-title">Recap</div>
     <div class="box recap-box">
-      <DayRecap selectedDate={$selectedDate} />
+      <DayRecap bind:selectedDate={boundDate} />
     </div>
   </div>
 
@@ -93,6 +96,9 @@
     border-radius: 0.25rem;
     padding: 0.75rem;
     overflow: auto;
+  }
+  .recap-box {
+    overflow: hidden;
   }
   .header-row {
     display: flex;

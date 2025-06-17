@@ -2,6 +2,7 @@ import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
 export interface Settings {
+  userName: string;
   dayStart: string; // HH:MM
   dayEnd: string;   // HH:MM
   theme: 'light' | 'dark';
@@ -10,6 +11,7 @@ export interface Settings {
 }
 
 const DEFAULT_SETTINGS: Settings = {
+  userName: 'User',
   dayStart: '08:00',
   dayEnd: '18:00',
   theme: 'dark',
