@@ -148,7 +148,6 @@
 }
 .row {
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
 }
 .prio {
@@ -157,6 +156,9 @@
   border-radius: 0.1rem;
   margin-right: 0.5rem;
   cursor: pointer;
+}
+.title {
+  margin-right: auto;
 }
 .p1 { background: #ff5555; }
 .p2 { background: #ff9900; }

@@ -112,19 +112,22 @@
   border-radius: 0.25rem;
   margin-bottom: 0.25rem;
   background: var(--bg-box);
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
+  cursor: grab;
 }
 .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  
 }
 .task-row .priority {
   width: 0.75rem;
   height: 0.75rem;
   border-radius: 0.1rem;
-  cursor: pointer;
+  cursor: default;
+
 }
 .task-row .time {
   font-size: 0.8rem;

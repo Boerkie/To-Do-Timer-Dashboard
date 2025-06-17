@@ -94,12 +94,12 @@
 <style>
   .recap-timeline {
     position: relative;
-    height: 18rem;
+    height: 25rem;
     overflow-x: auto;
   }
   .timeline-wrapper {
     position: relative;
-    height: 100%;
+    height: 88%;
   }
   .time-grid {
     position: absolute;
