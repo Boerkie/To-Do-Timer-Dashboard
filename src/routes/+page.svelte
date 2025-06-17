@@ -4,6 +4,7 @@
     DayRecap,
     ActiveTask,
     TodoList,
+    AddBar,
     ClearedList,
     AdvancedDetails,
     PriorityFilter,
@@ -42,6 +43,10 @@
     </div>
     <div class="box todo-list-box">
       <TodoList tasks={$todoTasks} />
+    </div>
+    <!-- pinned add bar -->
+    <div class="add-bar-box">
+      <AddBar />
     </div>
 
     {#if $showCleared}
@@ -121,6 +126,11 @@
     overflow: hidden;
     border-width: 3px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  }
+  /* container for pinned add bar */
+  .add-bar-box {
+    padding: 0 0.75rem 0.5rem;
+    background-color: var(--bg-panel);
   }
   .priority-box {
     padding: 0.5rem;

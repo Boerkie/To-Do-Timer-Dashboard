@@ -1,7 +1,7 @@
+<!-- TodoList.svelte -->
 <script lang="ts">
   import type { TodoTask } from '$lib/types';
   import {
-    addTask,
     activateTask,
     deactivateTask,
     reorderTodo,
@@ -34,12 +34,6 @@
     return t.activePeriods.reduce((sum, p) => sum + ((p.end ?? Date.now()) - p.start), 0);
   }
 
-  let newTask = '';
-
-  function submit() {
-    addTask(newTask);
-    newTask = '';
-  }
 </script>
 
 <section class="todo-list">
@@ -95,15 +89,6 @@
         </li>
       {/each}
     </ol>
-  </div>
-  <div class="add-bar">
-    <input
-      type="text"
-      placeholder="Add new task (#tag for tags)"
-      bind:value={newTask}
-      on:keydown={(e) => e.key === 'Enter' && submit()}
-    />
-    <button type="button" on:click={submit}>Add</button>
   </div>
 </section>
 
@@ -164,16 +149,6 @@
   border-radius: 0.5rem;
   border: var(--tag-border-width, 2px) solid var(--border);
   font-size: 0.7rem;
-}
-.add-bar {
-  /* input row pinned to the bottom */
-  margin-top: 0.5rem;
-  display: flex;
-  gap: 0.5rem;
-  position: sticky;
-  bottom: 0;
-  padding-top: 0.5rem;
-  background: var(--bg-panel);
 }
 
 ol {
