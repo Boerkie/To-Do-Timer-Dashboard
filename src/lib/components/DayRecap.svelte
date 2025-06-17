@@ -1,20 +1,20 @@
 <!-- DayRecap.svelte -->
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { derived, writable } from 'svelte/store';
   import { tasks } from '$lib/stores/tasks';
   import { settings } from '$lib/stores/settings';
+  import { PRIORITY_COLORS } from '$lib/constants';
   import type { TodoTask, ActivePeriod } from '$lib/types';
-  import { derived, writable } from 'svelte/store';
 
   export let selectedDate: Date = new Date();
   let dateString: string = selectedDate.toISOString().slice(0, 10);
-
   function onDateChange() {
     selectedDate = new Date(dateString);
   }
 
-  let dayStartMs: number;
-  let dayEndMs: number;
+  let dayStartMs = 0;
+  let dayEndMs = 0;
   const unsubscribe = settings.subscribe(({ dayStart, dayEnd }) => {
     const [sh, sm] = dayStart.split(':').map(Number);
     const [eh, em] = dayEnd.split(':').map(Number);
@@ -27,108 +27,124 @@
     dateString = selectedDate.toISOString().slice(0, 10);
   }
 
-  const now = writable(Math.floor(Date.now() / (5 * 60000)) * (5 * 60000));
+  const now = writable(Date.now());
   let timer: ReturnType<typeof setInterval>;
-
   onMount(() => {
-    now.set(Math.floor(Date.now() / (5 * 60000)) * (5 * 60000));
-    timer = setInterval(
-      () => now.set(Math.floor(Date.now() / (5 * 60000)) * (5 * 60000)),
-      5 * 60000
-    );
+    now.set(Date.now());
+    timer = setInterval(() => now.set(Date.now()), 60000);
   });
-
   onDestroy(() => clearInterval(timer));
 
+  const rangeMs = () => dayEndMs - dayStartMs;
+
   const recapData = derived([tasks, now], ([$tasks, $now]) => {
-    const map = new Map<string, { task: TodoTask; periods: Array<{ start: number; end: number }> }>();
+    const entries: Array<{ task: TodoTask; periods: Array<{ start: number; end: number }> }> = [];
     $tasks.forEach((task) => {
-      task.activePeriods?.forEach((p: ActivePeriod) => {
-        const s = new Date(p.start).getTime();
-        const e = p.end ? new Date(p.end).getTime() : $now;
+      const periods: Array<{ start: number; end: number }> = [];
+      task.activePeriods.forEach((p: ActivePeriod) => {
+        const s = p.start;
+        const e = p.end ?? $now;
         if (s < dayEndMs && e > dayStartMs) {
           const start = Math.max(s, dayStartMs);
           const end = Math.min(e, dayEndMs);
-          if (end > start) {
-            if (!map.has(task.id)) map.set(task.id, { task, periods: [] });
-            map.get(task.id)!.periods.push({ start, end });
-          }
+          if (end > start) periods.push({ start, end });
         }
       });
+      if (periods.length) entries.push({ task, periods });
     });
-    return Array.from(map.values()).sort((a, b) => a.periods[0].start - b.periods[0].start);
+    return entries.sort((a, b) => a.task.createdAt - b.task.createdAt);
   });
 
-  const rangeMs = () => dayEndMs - dayStartMs;
+  $: hours = [] as number[];
+  $: {
+    hours = [];
+    for (let t = dayStartMs; t <= dayEndMs; t += 3600000) hours.push(t);
+  }
 </script>
 
-<section class="day-recap">
+<section class="recap-timeline">
   <header>
     <input type="date" bind:value={dateString} on:change={onDateChange} />
   </header>
-
-  <div class="timeline-container">
-    {#each $recapData as { task, periods }, row}
-      <div class="task-line" style:top={row * 1.5 + 'rem'}>
-        <span class="task-label">{task.title}</span>
-        {#each periods as { start, end }}
-          <div
-            class="bar"
-            title={`${task.title}: ${new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – ${new Date(end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-            style:left={(start - dayStartMs) / rangeMs() * 100 + '%'}
-            style:width={(end - start) / rangeMs() * 100 + '%'}
-          ></div>
-        {/each}
-      </div>
-    {/each}
-
-    <div class="marker start" style:left="0%">DS</div>
-    <div class="marker end" style:left="100%">DE</div>
-    <div
-      class="marker now"
-      style:left={($now - dayStartMs) / rangeMs() * 100 + '%'}
-    >NOW</div>
+  <div class="timeline-wrapper">
+    <div class="time-grid">
+      {#each hours as h}
+        <div class="hour-line" style:top={(h - dayStartMs) / rangeMs() * 100 + '%'}>
+          {new Date(h).toLocaleTimeString([], { hour: '2-digit' })}
+        </div>
+      {/each}
+    </div>
+    <div class="task-columns">
+      {#each $recapData as { task, periods }}
+        <div class="task-column">
+          {#each periods as { start, end }}
+            <div
+              class="task-bar"
+              style="background-color: {PRIORITY_COLORS[task.priority ?? 4]}; top: {(start - dayStartMs) / rangeMs() * 100}%; height: {(end - start) / rangeMs() * 100}%"
+              title={`${task.title}: ${new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – ${new Date(end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+            ></div>
+          {/each}
+          <div class="task-label">{task.title}</div>
+        </div>
+      {/each}
+    </div>
   </div>
 </section>
 
 <style>
-  .timeline-container {
+  .recap-timeline {
     position: relative;
-    height: 10rem;
-    border: 1px solid var(--border);
-    margin-top: 1rem;
+    height: 18rem;
+    overflow-x: auto;
   }
-
-  .bar {
+  .timeline-wrapper {
+    position: relative;
+    height: 100%;
+  }
+  .time-grid {
     position: absolute;
-    height: 1rem;
-    background: var(--accent);
-    border-radius: 0.25rem;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
-
-  .task-line {
+  .hour-line {
     position: absolute;
     left: 0;
     right: 0;
-    height: 1.5rem;
+    height: 0;
+    border-top: 1px solid var(--border);
+    font-size: 0.65rem;
+    line-height: 0;
   }
-
-  .task-label {
-    position: absolute;
-    left: -0.5rem;
-    transform: translateX(-100%);
-    font-size: 0.75rem;
-    white-space: nowrap;
-  }
-
-  .marker {
+  .task-columns {
     position: absolute;
     top: 0;
-    font-size: 0.75rem;
-    font-weight: bold;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    gap: 0.5rem;
+    padding-left: 3rem;
   }
-
-  .marker.start { color: green; }
-  .marker.end { color: red; }
-  .marker.now { color: blue; transform: translateX(-50%); }
+  .task-column {
+    position: relative;
+    flex: 0 0 4rem;
+  }
+  .task-bar {
+    position: absolute;
+    left: 25%;
+    width: 50%;
+    border-radius: 0.25rem;
+  }
+  .task-label {
+    position: absolute;
+    bottom: -1.2rem;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>
