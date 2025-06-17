@@ -11,6 +11,7 @@ agents:
 	  - Use constants instead of "magic values".
       - Follow lowerCamelCase for variables and ALLCAPS for constants.
       - Structure files with a leading comment indicating the file name.
+      - Don't create variations of README files if it's just duplicating the documentation.
     temperature: 0.2
     max_tokens: 32768  # maximum context window for large code bases
 
