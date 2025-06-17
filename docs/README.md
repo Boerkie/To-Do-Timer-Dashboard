@@ -40,7 +40,7 @@ The application is structured into these components:
 - **Personalised Header** – the title uses the configured user name.
 - **Date Navigation** – selecting any day in the Day Recap shows the timeline for that day.
 - **Tags and Filtering** – the Tags List enables filtering and drag‑and‑drop assignment.
-- **Persistent Add Bar** – new tasks can always be added via the bar below the list.
+- **Persistent Add Bar** – new tasks can always be added via the pinned bar directly under the scrollable list.
 
 ## UI/UX Notes
 
