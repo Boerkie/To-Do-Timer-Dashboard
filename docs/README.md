@@ -1,8 +1,9 @@
 # Documentation Overview
 
 This folder contains the definitive requirements for the TODO Timer Dashboard.
-The file `REQUIREMENTS.md` lists every feature in detail. This README provides a concise overview.
-For a quick reference of the essential features, see [CORE_REQUIREMENTS.md](CORE_REQUIREMENTS.md).
+
+The file `REQUIREMENTS.md` lists every feature in detail.
+
 
 ## Interface Summary
 

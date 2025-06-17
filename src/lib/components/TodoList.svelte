@@ -43,57 +43,59 @@
 </script>
 
 <section class="todo-list">
-  <ol
-    class:hideNumbers={!$settings.showListNumbers}
-    on:dragover|preventDefault
-    on:drop={(e: DragEvent) => {
-      const id = e.dataTransfer?.getData('text/task');
-      const activeId = e.dataTransfer?.getData('text/active');
-      if (id) reorderTodo(id, null);
-      if (activeId) deactivateTask(activeId);
-    }}
-  >
-    {#each tasks as t}
-      <li
-        class="task-row"
-        draggable="true"
-        on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/task', t.id)}
-        on:dragover|preventDefault={() => {}}
-        on:drop={(e: DragEvent) => {
-          e.stopPropagation();
-          const id = e.dataTransfer?.getData('text/task');
-          if (id && id !== t.id) reorderTodo(id, t.id);
-          const tag = e.dataTransfer?.getData('text/tag');
-          if (tag && !t.tags.includes(tag)) {
-            tasksStore.update((list) => {
-              const task = list.find((x) => x.id === t.id);
-              if (task) task.tags = [...task.tags, tag];
-              return [...list];
-            });
-          }
-        }}
-      >
-        <div class="row">
-          <span
-            class="priority p{t.priority ?? 4}"
-            title={PRIORITY_LABELS[t.priority ?? 4]}
-            on:click={() => cyclePriority(t.id)}
-          ></span>
-          <span class="title">{t.title}</span>
-          <span class="time">{formatDuration(totalTime(t))}</span>
-        </div>
-        <div class="tags">
-          {#each [...t.tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })) as tag}
+  <div class="list-area">
+    <ol
+      class:hideNumbers={!$settings.showListNumbers}
+      on:dragover|preventDefault
+      on:drop={(e: DragEvent) => {
+        const id = e.dataTransfer?.getData('text/task');
+        const activeId = e.dataTransfer?.getData('text/active');
+        if (id) reorderTodo(id, null);
+        if (activeId) deactivateTask(activeId);
+      }}
+    >
+      {#each tasks as t}
+        <li
+          class="task-row"
+          draggable="true"
+          on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/task', t.id)}
+          on:dragover|preventDefault={() => {}}
+          on:drop={(e: DragEvent) => {
+            e.stopPropagation();
+            const id = e.dataTransfer?.getData('text/task');
+            if (id && id !== t.id) reorderTodo(id, t.id);
+            const tag = e.dataTransfer?.getData('text/tag');
+            if (tag && !t.tags.includes(tag)) {
+              tasksStore.update((list) => {
+                const task = list.find((x) => x.id === t.id);
+                if (task) task.tags = [...task.tags, tag];
+                return [...list];
+              });
+            }
+          }}
+        >
+          <div class="row">
             <span
-              class="tag-pill"
-              style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]?.fg};border-color:{get(tagStyles)[tag]?.border}"
-              >{tag}</span
-            >
-          {/each}
-        </div>
-      </li>
-    {/each}
-  </ol>
+              class="priority p{t.priority ?? 4}"
+              title={PRIORITY_LABELS[t.priority ?? 4]}
+              on:click={() => cyclePriority(t.id)}
+            ></span>
+            <span class="title">{t.title}</span>
+            <span class="time">{formatDuration(totalTime(t))}</span>
+          </div>
+          <div class="tags">
+            {#each [...t.tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })) as tag}
+              <span
+                class="tag-pill"
+                style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]?.fg};border-color:{get(tagStyles)[tag]?.border}"
+                >{tag}</span
+              >
+            {/each}
+          </div>
+        </li>
+      {/each}
+    </ol>
+  </div>
   <div class="add-bar">
     <input
       type="text"
@@ -106,7 +108,18 @@
 </section>
 
 <style>
-.todo-list { padding: 1rem; }
+.todo-list {
+  /* container with flexible layout */
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.list-area {
+  /* scrolling area for tasks only */
+  flex: 1;
+  overflow-y: auto;
+}
 .task-row {
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
@@ -153,9 +166,14 @@
   font-size: 0.7rem;
 }
 .add-bar {
+  /* input row pinned to the bottom */
   margin-top: 0.5rem;
   display: flex;
   gap: 0.5rem;
+  position: sticky;
+  bottom: 0;
+  padding-top: 0.5rem;
+  background: var(--bg-panel);
 }
 
 ol {
