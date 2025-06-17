@@ -1,58 +1,49 @@
-# Documentation Overview
+# TODO Timer Dashboard Documentation
 
-This folder contains the definitive requirements for the TODO Timer Dashboard.
+This document collects the interface overview and core requirements for the TODO Timer Dashboard.
 
-The file `REQUIREMENTS.md` lists every feature in detail.
+## Interface Overview
 
+The application is structured into these components:
 
-## Interface Summary
+1. **Page Banner**
+   - Shows the dashboard title and buttons for export/import and settings.
+   - Lets users configure day start and end times which all timers respect.
+2. **Day Recap**
+   - Provides a timeline of task activity for the selected day.
+   - Marks day start, day end and the current time.
+3. **Active**
+   - Displays at most one task with a live timer.
+   - Timers pause at day end and resume the next day.
+4. **To‑Do List**
+   - Holds upcoming tasks that can be reordered.
+   - Tasks can be dragged into the Active block.
+5. **Cleared/Done List**
+   - Stores completed tasks and can be toggled.
+6. **Advanced Details**
+   - Shows optional information for the active task such as description, time spent and colour/priority.
+7. **Tags List**
+   - Lists all tags. Clicking filters tasks while dragging assigns a tag.
 
-The dashboard is made up of the following parts:
+## Core Requirements
 
-- **Page Banner** – displays the application name and basic controls for import/export and settings.
-- **Day Recap** – shows a timeline of task activity for the selected day.
-- **Active Task** – contains at most one task with a live timer.
-- **To-Do List** – lists upcoming tasks that can be dragged to the active area.
-- **Cleared/Done List** – stores tasks marked as complete and can be hidden.
-- **Advanced Details** – offers optional information and controls for the active task.
-- **Tags List** – lists all tags and allows filtering or dragging tags onto tasks.
+- **Single Active Task** – only one task can be active at a time.
+- **Task Movement**
+  - Tasks can be dragged between the To‑Do List and Active.
+  - Deactivated tasks return to the top of the To‑Do List and new tasks appear at the bottom.
+- **Task Timing**
+  - Each task records its daily active time.
+  - Timers pause at the configured end of day and resume at the next start.
+- **Task Addition**
+  - Tasks support tags (`#tag`) and priorities (`!`).
+  - Priority cycles from **P4** (default) to **P1**.
+- **Date Navigation** – selecting any day in the Day Recap shows the timeline for that day.
+- **Tags and Filtering** – the Tags List enables filtering and drag‑and‑drop assignment.
 
-## Core Functionality
+## UI/UX Notes
 
-- Only one task is active at any time.
-- Tasks can be dragged between the To-Do List and the active area.
-- A task returning from Active is placed at the top of the To-Do List.
-- Tasks can include tags and priorities when created.
-- Each task records the time it has been active for the day and resumes if reactivated.
-- Users can view a recap of any day, respecting configured start and end times.
-- Selecting a tag filters relevant tasks in all lists.
-
-## Task Management
-- Only one task can be active at any time.
-- Tasks move between lists when activated, deactivated or cleared.
-- New tasks support tags (`#tag`) and priorities (`!`).
-- Priority values cycle from **P4** (default) through **P3**, **P2**, **P1** and back to **P4**.
-
-## Timing Behaviour
-- Each task records its active durations by day.
-- Timers pause automatically at the configured end of day and resume at the next start of day.
-- The Day Recap visualises these periods on a sequence‑style timeline.
-
-## Filtering
-- Tags and priorities can be selected to filter the To‑Do List.
-- Selected filters are highlighted for clarity.
-- Tags may be dragged onto tasks to assign them directly.
-
-## Interface Notes
-- The Active item resembles an enlarged list entry rather than a wide panel.
-- List entries display total time spent and tags beneath the task title and timer.
-- List numbering appears outside the rounded task boxes.
-
-## User Experience
-
-- Dark theme enabled by default with theming support.
-- All components reactively update as state changes.
-- Drag-and-drop interactions provide clear visual feedback.
-- The Day Recap timeline updates while time advances.
-- Advanced details adapt to show information for the current active task.
-
+- Dark theme enabled by default with optional theming.
+- All components update reactively as state changes.
+- Drag‑and‑drop interactions provide clear feedback.
+- The Day Recap timeline updates live while time progresses.
+- The Active item resembles a large list entry with list numbers outside rounded boxes.
