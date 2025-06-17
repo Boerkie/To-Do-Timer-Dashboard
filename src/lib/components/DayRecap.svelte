@@ -117,13 +117,21 @@
 <style>
   .recap-timeline {
     position: relative;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     overflow-x: auto;
-    overflow-y: hidden;
+  }
+  .recap-timeline > header {
+    position: sticky;
+    top: 0;
+    background: var(--bg-box);
+    z-index: 1;
   }
   .timeline-wrapper {
     position: relative;
-    height: calc(100% - 1.5rem);
+    flex: 1;
+    overflow-y: auto;
     margin-top: 1.5rem;
   }
   .time-grid {

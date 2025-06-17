@@ -107,7 +107,9 @@
   .recap-box {
     flex: 1;
     display: flex;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: calc(100vh - var(--header-height));
   }
   .header-row {
     display: flex;
