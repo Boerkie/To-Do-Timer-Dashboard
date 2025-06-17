@@ -1,3 +1,4 @@
+<!-- +page.svelte -->
 <script lang="ts">
   import {
     PageBanner,
@@ -102,7 +103,10 @@
     padding: 0.75rem;
     overflow: auto;
   }
+  /* allow recap to use remaining space */
   .recap-box {
+    flex: 1;
+    display: flex;
     overflow: hidden;
   }
   .header-row {
