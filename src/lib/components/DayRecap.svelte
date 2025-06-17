@@ -117,12 +117,13 @@
 <style>
   .recap-timeline {
     position: relative;
-    height: 25rem;
+    height: 100%;
     overflow-x: auto;
+    overflow-y: hidden;
   }
   .timeline-wrapper {
     position: relative;
-    height: 88%;
+    height: calc(100% - 1.5rem);
     margin-top: 1.5rem;
   }
   .time-grid {
@@ -177,7 +178,7 @@
   }
   .task-label {
     position: absolute;
-    bottom: -1.2rem;
+    bottom: -1.8rem;
     left: 0;
     width: 100%;
     display: flex;
@@ -185,11 +186,14 @@
     justify-content: center;
     gap: 0.25rem;
     font-size: 0.75rem;
-    white-space: nowrap;
+    text-align: center;
   }
   .label-text {
     overflow: hidden;
     text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
   .prio {
     width: 0.75rem;
