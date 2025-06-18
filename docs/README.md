@@ -49,9 +49,3 @@ The application is structured into these components:
 - Drag‑and‑drop interactions provide clear feedback.
 - The Day Recap timeline updates live while time progresses.
 - The Active item resembles a large list entry with list numbers outside rounded boxes.
-
-## Documentation Maintenance
-
-- All documentation lives in this `docs` folder.
-- Edit `docs/README.md` directly for any updates.
-- Avoid creating additional README files elsewhere in the project.
