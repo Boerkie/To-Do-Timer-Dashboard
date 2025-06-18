@@ -1,3 +1,4 @@
+<!-- ActiveTask.svelte -->
 <script lang="ts">
   import type { TodoTask } from '$lib/types';
   import {

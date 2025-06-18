@@ -1,3 +1,4 @@
+<!-- AdvancedDetails.svelte -->
 <script lang="ts">
   import type { TodoTask } from '$lib/types';
   import { tagStyles, tasks as tasksStore, PRIORITY_LABELS } from '$lib';
