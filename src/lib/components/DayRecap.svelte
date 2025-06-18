@@ -1,11 +1,12 @@
 <!-- DayRecap.svelte -->
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
-  import { derived, writable } from 'svelte/store';
+  import { onMount } from 'svelte';
+  import { derived } from 'svelte/store';
   import { tasks } from '$lib/stores/tasks';
   import { settings } from '$lib/stores/settings';
   import { PRIORITY_COLORS } from '$lib/constants';
   import type { TodoTask, ActivePeriod } from '$lib/types';
+  import { now } from '$lib/timeUtils';
 
   export let selectedDate: Date = new Date();
   let dateString: string = selectedDate.toISOString().slice(0, 10);
@@ -39,14 +40,9 @@
     updateDayRange();
   }
 
-  const now = writable(Date.now());
-  let timer: ReturnType<typeof setInterval>;
   onMount(() => {
     updateDayRange();
-    now.set(Date.now());
-    timer = setInterval(() => now.set(Date.now()), 60000);
   });
-  onDestroy(() => clearInterval(timer));
 
   const rangeMs = () => dayEndMs - dayStartMs;
 
@@ -169,7 +165,7 @@
   .bars-container {
     position: relative;
     display: flex;
-    align-items: flex-start;
+    align-items: stretch;
     overflow-x: auto;
     gap: 0.5rem;
     padding-left: 3rem;
@@ -177,6 +173,7 @@
   .event-wrap {
     position: relative;
     flex: 0 0 var(--column-width);
+    height: 100%;
   }
   .event-bar {
     position: absolute;
