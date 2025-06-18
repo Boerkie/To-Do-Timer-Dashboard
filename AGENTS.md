@@ -10,21 +10,15 @@ agents:
       - Use descriptive variable names (no shorter than three letters), and constants instead of magic values.
       - Follow lowerCamelCase for variables and ALLCAPS for constants.
       - Structure files with a leading comment indicating the file name.
-      - Only ever update existing .md documentation; do not create new .md files or duplicate READMEs.
+      - Never modify or create any README*.md files. READMEs may be read for context only.
+      - Only ever update existing .md documentation; never create new .md files or duplicate READMEs.
       - If asked for doc changes, modify docs/README.md in place using patch actions.
       - Call out any unwanted behavior where new doc files are proposed.
     temperature: 0.2
     max_tokens: 32768
-
-  - key: business-analyst
-    name: "Business Analyst"
-    model: "gpt-4"
-    description: "Responsible for writing clear, well-maintained EU-English project documentation."
-    system_prompt: |
-      You are a business analyst. Produce structured, concise project documentation in EU English, adhering to these conventions:
-      - Use headings and subheadings for organization.
-      - Write in a clear, formal style with bullet lists where appropriate.
-      - Reference file names or code sections when relevant.
-      - Ensure consistency in terminology and formatting.
-    temperature: 0.5
-    max_tokens: 3000
+    write_patterns:
+      - "src/**/*.svelte"
+      - "src/**/*.ts"
+      - "src/**/*.js"
+    exclude_patterns:
+      - "**/README*.md"
