@@ -52,8 +52,12 @@ The application is structured into these components:
 
 ## Documentation Core Requirements
 
-The project documentation follows these principles:
+This README serves as the central guide for maintaining all project documents. The project documentation follows these principles:
 
 - All guides and references live in this `docs` directory.
 - Each README section uses clear headings for quick navigation.
 - Descriptions adopt concise EU English.
+- Use bullet lists where suitable for quick reading.
+- Document new features with a brief summary and configuration steps.
+- Avoid repeating content across README files.
+- Note key UI rules, for example the Recap chart must always stay within its panel.
