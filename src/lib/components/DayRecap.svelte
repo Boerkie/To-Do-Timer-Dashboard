@@ -128,11 +128,12 @@
     background: var(--bg-box);
     z-index: 1;
   }
+  /* fill remaining space below the sticky header */
   .timeline-wrapper {
     position: relative;
-    flex: 1;
+    height: 100%;
+    padding-top: 1.5rem;
     overflow: hidden;
-    margin-top: 1.5rem;
   }
   .time-grid {
     position: absolute;
