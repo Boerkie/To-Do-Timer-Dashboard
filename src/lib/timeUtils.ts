@@ -1,19 +1,20 @@
 // timeUtils.ts
-import { readable } from 'svelte/store';
+import { readable, get } from 'svelte/store';
+import { settings } from '$lib/stores/settings';
 
 export const now = readable(Date.now(), (set) => {
   const iv = setInterval(() => set(Date.now()), 1000);
   return () => clearInterval(iv);
 });
 
-const WORK_START_HOUR = 9;
-const WORK_END_HOUR = 17;
-
 function getDayBounds(ts: number) {
+  const { dayStart, dayEnd } = get(settings);
+  const [startHour, startMinute] = dayStart.split(':').map(Number);
+  const [endHour, endMinute] = dayEnd.split(':').map(Number);
   const d = new Date(ts);
-  const dayStart = new Date(d).setHours(WORK_START_HOUR, 0, 0, 0);
-  const dayEnd = new Date(d).setHours(WORK_END_HOUR, 0, 0, 0);
-  return { dayStart, dayEnd };
+  const start = new Date(d).setHours(startHour, startMinute, 0, 0);
+  const end = new Date(d).setHours(endHour, endMinute, 0, 0);
+  return { dayStart: start, dayEnd: end };
 }
 
 export function getTotalMs(
