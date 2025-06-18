@@ -1,60 +1,15 @@
 <script lang="ts">
   import type { TodoTask } from '$lib/types';
-  import { tagStyles, tasks as tasksStore, settings, PRIORITY_LABELS } from '$lib';
+  import { tagStyles, tasks as tasksStore, PRIORITY_LABELS } from '$lib';
   import { get } from 'svelte/store';
-  import { onMount, onDestroy } from 'svelte';
+  import { now, getTotalMs, formatMs } from '$lib/timeUtils';
 
   export let task: TodoTask | null = null;
   let detailsSection: HTMLElement;
 
-  let now = Date.now();
-  let timer: ReturnType<typeof setInterval>;
+  $: totalMs = task ? getTotalMs(task.activePeriods, $now) : 0;
+  $: displayTime = formatMs(totalMs);
 
-  onMount(() => {
-    timer = setInterval(() => (now = Date.now()), 60000);
-  });
-  onDestroy(() => clearInterval(timer));
-
-  function formatDuration(ms: number): string {
-    const sec = Math.floor(ms / 1000);
-    const h = Math.floor(sec / 3600)
-      .toString()
-      .padStart(2, '0');
-    const m = Math.floor((sec % 3600) / 60)
-      .toString()
-      .padStart(2, '0');
-    const s = Math.floor(sec % 60)
-      .toString()
-      .padStart(2, '0');
-    return `${h}:${m}:${s}`;
-  }
-
-  // derive overall active time clamped to the configured end of day
-  $: totalTime = task
-    ? task.activePeriods.reduce((sum, period) => {
-        const end = Math.min(period.end ?? now, dayEnd);
-        return sum + (end - period.start);
-      }, 0)
-    : 0;
-
-  $: dayStart = (() => {
-    const { dayStart } = get(settings);
-    const [h, m] = dayStart.split(':').map(Number);
-    return new Date().setHours(h, m, 0, 0);
-  })();
-  $: dayEnd = (() => {
-    const { dayEnd } = get(settings);
-    const [h, m] = dayEnd.split(':').map(Number);
-    return new Date().setHours(h, m, 0, 0);
-  })();
-
-  $: totalToday = task
-    ? task.activePeriods.reduce((sum, p) => {
-        const start = Math.max(p.start, dayStart);
-        const end = Math.min(p.end ?? now, dayEnd);
-        return end > start ? sum + (end - start) : sum;
-      }, 0)
-    : 0;
 
   function removeTag(tag: string) {
     if (!task) return;
@@ -70,10 +25,10 @@
   {#if task}
     <div class="header">
       <h3>{task.title}</h3>
-      <span class="time">{formatDuration(totalTime)}</span>
+      <span class="time">{displayTime}</span>
     </div>
     <textarea placeholder="Task details" bind:value={task.details}></textarea>
-    <div class="readonly">Today: {formatDuration(totalToday)}</div>
+    <div class="readonly">Today: {displayTime}</div>
     <div class="readonly priority-display">
       <span class="prio p{task.priority ?? 4}"></span>
       {PRIORITY_LABELS[task.priority ?? 4]}
