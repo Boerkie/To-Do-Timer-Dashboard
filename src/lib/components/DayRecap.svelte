@@ -78,12 +78,12 @@
   }
 </script>
 
+<div class="box-header">
+  <h2>{selectedDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</h2>
+  <button class="date-picker" on:click={() => dateInput.showPicker()} aria-label="Pick date">📅</button>
+  <input type="date" bind:value={dateString} on:change={onDateChange} bind:this={dateInput} style="display: none" />
+</div>
 <section class="recap-timeline">
-  <header>
-    <h2>{selectedDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</h2>
-    <button class="date-picker" on:click={() => dateInput.showPicker()} aria-label="Pick date">📅</button>
-    <input type="date" bind:value={dateString} on:change={onDateChange} bind:this={dateInput} style="display: none" />
-  </header>
   <div class="timeline-wrapper">
     <div class="time-grid">
       {#each hours as h}
@@ -92,19 +92,19 @@
         </div>
       {/each}
     </div>
-    <div class="task-columns">
+    <div class="bars-container">
       {#each $recapData as { task, periods }}
-        <div class="task-column">
+        <div class="event-wrap">
           {#each periods as { start, end }}
             <div
-              class="task-bar"
+              class="event-bar"
               style="background-color: {PRIORITY_COLORS[task.priority ?? 4]}; top: {(start - dayStartMs) / rangeMs() * 100}%; height: {(end - start) / rangeMs() * 100}%"
               title={`${task.title}: ${new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – ${new Date(end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
             >
               <span class="bar-time">{new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – {new Date(end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
           {/each}
-          <div class="task-label">
+          <div class="bar-label">
             <span class="prio p{task.priority ?? 4}"></span>
             <span class="label-text">{task.title}</span>
           </div>
@@ -115,25 +115,22 @@
 </section>
 
 <style>
+  .box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+  }
   .recap-timeline {
     position: relative;
-    display: flex;
-    flex-direction: column;
     height: 100%;
     overflow-x: auto;
+    --column-width: 4rem;
   }
-  .recap-timeline > header {
-    position: sticky;
-    top: 0;
-    background: var(--bg-box);
-    z-index: 1;
-  }
-  /* fill remaining space below the sticky header */
   .timeline-wrapper {
-    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
     height: 100%;
-    padding-top: 1.5rem;
-    overflow: hidden;
   }
   .time-grid {
     position: absolute;
@@ -151,23 +148,22 @@
     font-size: 0.65rem;
     line-height: 0;
   }
-  .task-columns {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
+  .bars-container {
+    position: relative;
     display: flex;
+    align-items: flex-start;
+    overflow-x: auto;
     gap: 0.5rem;
     padding-left: 3rem;
   }
-  .task-column {
+  .event-wrap {
     position: relative;
-    flex: 0 0 4rem;
+    flex: 0 0 var(--column-width);
   }
-  .task-bar {
+  .event-bar {
     position: absolute;
-    left: 25%;
-    width: 50%;
+    left: 0;
+    width: 100%;
     border-radius: 0.25rem;
     overflow: hidden;
     color: #fff;
@@ -185,9 +181,9 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
-  .task-label {
+  .bar-label {
     position: absolute;
-    bottom: -1.8rem;
+    bottom: -1.5rem;
     left: 0;
     width: 100%;
     display: flex;
@@ -215,9 +211,6 @@
   .p4 { background: #888888; }
 
   .date-picker {
-    position: absolute;
-    top: 0;
-    right: 0;
     border: none;
     background: none;
     cursor: pointer;
