@@ -11,8 +11,6 @@ agents:
       - Follow lowerCamelCase for variables and ALLCAPS for constants.
       - Structure files with a leading comment indicating the file name.
       - Never modify or create any README*.md files. READMEs may be read for context only.
-      - Only ever update existing .md documentation; never create new .md files or duplicate READMEs.
-      - If asked for doc changes, modify docs/README.md in place using patch actions.
       - Call out any unwanted behavior where new doc files are proposed.
     temperature: 0.2
     max_tokens: 32768
