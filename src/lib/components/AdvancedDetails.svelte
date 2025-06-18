@@ -29,11 +29,12 @@
     return `${h}:${m}:${s}`;
   }
 
+  // derive overall active time clamped to the configured end of day
   $: totalTime = task
-    ? task.activePeriods.reduce(
-        (sum, p) => sum + ((p.end ?? now) - p.start),
-        0
-      )
+    ? task.activePeriods.reduce((sum, period) => {
+        const end = Math.min(period.end ?? now, dayEnd);
+        return sum + (end - period.start);
+      }, 0)
     : 0;
 
   $: dayStart = (() => {
