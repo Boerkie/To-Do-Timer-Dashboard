@@ -50,9 +50,4 @@ The application is structured into these components:
 - The Day Recap timeline updates live while time progresses.
 - The Active item resembles a large list entry with list numbers outside rounded boxes.
 
-## Documentation Core Requirements
-
-- Keep all project docs inside the `docs/` directory.
-- Update this file whenever guidance or requirements change.
-- Avoid creating additional README files or duplicating content.
-- Use concise language and Markdown formatting for clarity.
+No more edits of this file is allowed.
