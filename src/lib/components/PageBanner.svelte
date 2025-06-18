@@ -3,6 +3,7 @@
   import type { Settings } from '$lib/stores/settings';
   import { showCleared } from '$lib';
   import { onDestroy } from 'svelte';
+  import { THEMES } from '$lib/constants';
 
   let showModal = false;
   let localSettings: Settings;
@@ -64,8 +65,9 @@
         <label>
           Theme:
           <select bind:value={localSettings.theme}>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
+            {#each THEMES as theme}
+              <option value={theme.value}>{theme.label}</option>
+            {/each}
           </select>
         </label>
         <label>

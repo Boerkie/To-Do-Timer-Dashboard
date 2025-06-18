@@ -88,7 +88,6 @@
     background-color: var(--bg-panel);
     color: var(--text-color);
     box-sizing: border-box;
-    font-size: 120%;
     font-weight: 500;
   }
   .left-panel,
@@ -126,17 +125,17 @@
   .active-box,
   .cleared-box {
     max-height: 200px;
-    overflow-y: auto;
   }
   .todo-list-box {
-    max-height: 30rem;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
     border-width: 3px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   }
-
   .priority-box {
     padding: 0.5rem;
   }

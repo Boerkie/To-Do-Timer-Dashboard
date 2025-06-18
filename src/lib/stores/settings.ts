@@ -5,7 +5,20 @@ export interface Settings {
   userName: string;
   dayStart: string; // HH:MM
   dayEnd: string;   // HH:MM
-  theme: 'light' | 'dark';
+  theme:
+    | 'light'
+    | 'dark'
+    | 'solarized-light'
+    | 'solarized-dark'
+    | 'theme-dracula'
+    | 'theme-nord'
+    | 'theme-monokai'
+    | 'theme-material-light'
+    | 'theme-material-dark'
+    | 'theme-flat-sunset'
+    | 'theme-flat-ocean'
+    | 'theme-flat-forest'
+    | 'theme-autumn';
   tagBorderWidth: number;
   showListNumbers: boolean;
 }
