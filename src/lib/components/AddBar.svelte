@@ -1,17 +1,14 @@
 <!-- AddBar.svelte -->
 <script lang="ts">
-  // handle new task input
   import { addTask } from '$lib';
   let newTask = '';
 
-  // add a task and clear input
   function submit() {
     addTask(newTask);
     newTask = '';
   }
 </script>
 
-<!-- add bar pinned below the list -->
 <div class="add-bar">
   <input
     type="text"
@@ -23,14 +20,23 @@
 </div>
 
 <style>
-  /* bar wrapper pinned to the bottom */
   .add-bar {
-    margin-top: 0.5rem;
     display: flex;
     gap: 0.5rem;
-    position: sticky;
-    bottom: 0;
-    padding-top: 0.5rem;
-    background: var(--bg-panel);
+  }
+
+  input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  button {
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
   }
 </style>

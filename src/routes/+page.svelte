@@ -15,9 +15,9 @@
     activeTask,
     selectedDate,
     tags,
-    showCleared
-  } from '$lib';
-  import { now, getTotalMs, formatMs } from '$lib/timeUtils';
+    showCleared,
+  } from "$lib";
+  import { now, getTotalMs, formatMs } from "$lib/timeUtils";
 
   let boundDate: Date = $selectedDate;
   $: selectedDate.set(boundDate);
@@ -36,7 +36,10 @@
   <!-- Main panel: Active, To-Do, Cleared -->
   <div class="main-panel">
     <div class="box-title">Active</div>
-    <div class="box active-box" style="border-color: {$activeTask?.borderColor ?? 'transparent'}">
+    <div
+      class="box active-box"
+      style="border-color: {$activeTask?.borderColor ?? 'transparent'}"
+    >
       <ActiveTask task={$activeTask} />
     </div>
 
@@ -46,8 +49,7 @@
     <div class="box todo-list-box">
       <TodoList tasks={$todoTasks} />
     </div>
-    <!-- pinned add bar -->
-    <div class="add-bar-box">
+    <div class="box add-bar-box">
       <AddBar />
     </div>
 
@@ -77,7 +79,6 @@
 </div>
 
 <style>
-
   .app-grid {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
@@ -87,6 +88,8 @@
     background-color: var(--bg-panel);
     color: var(--text-color);
     box-sizing: border-box;
+    font-size: 120%;
+    font-weight: 500;
   }
   .left-panel,
   .main-panel,
@@ -104,12 +107,11 @@
     border: 2px solid transparent;
     border-radius: 0.25rem;
     padding: 0.75rem;
-    overflow: auto;
   }
-  /* allow recap to use remaining space */
   .recap-box {
     flex: 1;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     min-height: 0;
   }
   .header-row {
@@ -134,11 +136,7 @@
     border-width: 3px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   }
-  /* container for pinned add bar */
-  .add-bar-box {
-    padding: 0 0.75rem 0.5rem;
-    background-color: var(--bg-panel);
-  }
+
   .priority-box {
     padding: 0.5rem;
   }

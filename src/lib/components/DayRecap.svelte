@@ -137,22 +137,16 @@
   }
   .recap-timeline {
     position: relative;
-    height: 100%;
-    overflow-x: auto;
+    height: 90%;
     --column-width: 4rem;
   }
   .timeline-wrapper {
     display: grid;
     grid-template-columns: auto 1fr;
-    height: 100%;
+    height: 96%;
+    position: relative;
   }
-  .time-grid {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }
+
   .hour-line {
     position: absolute;
     left: 0;
@@ -165,10 +159,10 @@
   .bars-container {
     position: relative;
     display: flex;
-    align-items: stretch;
-    overflow-x: auto;
     gap: 0.5rem;
-    padding-left: 3rem;
+    padding-left: 1rem;
+    height: 100%; /* Ensure it fills the wrapper */
+    overflow-y: visible; /* Prevent vertical scroll */
   }
   .event-wrap {
     position: relative;
@@ -182,7 +176,7 @@
     border-radius: 0.25rem;
     overflow: hidden;
     color: #fff;
-    font-size: 0.5rem;
+    font-size: 0.8rem;
   }
   .bar-time {
     position: absolute;
@@ -198,7 +192,7 @@
   }
   .bar-label {
     position: absolute;
-    bottom: -1.5rem;
+    bottom: -2.5rem;
     left: 0;
     width: 100%;
     display: flex;

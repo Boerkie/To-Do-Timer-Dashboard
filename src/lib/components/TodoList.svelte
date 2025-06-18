@@ -121,11 +121,10 @@
   
 }
 .task-row .priority {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 0.1rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.2rem;
   cursor: default;
-
 }
 .task-row .time {
   font-size: 0.8rem;
