@@ -49,3 +49,5 @@ The application is structured into these components:
 - Drag‑and‑drop interactions provide clear feedback.
 - The Day Recap timeline updates live while time progresses.
 - The Active item resembles a large list entry with list numbers outside rounded boxes.
+
+No more edits of this file is allowed.
