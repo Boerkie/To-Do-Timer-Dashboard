@@ -7,58 +7,17 @@
     moveToTop,
     tagStyles,
     tasks as tasksStore,
-    settings,
     cyclePriority,
     PRIORITY_LABELS
   } from '$lib';
   import { get } from 'svelte/store';
-  import { onMount, onDestroy } from 'svelte';
+  import { now, getTotalMs, formatMs } from '$lib/timeUtils';
   export let task: TodoTask | null = null;
 
   let showActions = false;
 
-  let now = Date.now();
-  let timer: ReturnType<typeof setInterval>;
-  let dayStart = 0;
-  let dayEnd = 0;
-  const unsubscribeSettings = settings.subscribe(({ dayStart: ds, dayEnd: de }) => {
-    const [sh, sm] = ds.split(':').map(Number);
-    const [eh, em] = de.split(':').map(Number);
-    const base = new Date().toISOString().slice(0,10);
-    const baseDate = new Date(base);
-    dayStart = new Date(baseDate).setHours(sh, sm, 0, 0);
-    dayEnd = new Date(baseDate).setHours(eh, em, 0, 0);
-  });
-
-  onMount(() => {
-    timer = setInterval(() => (now = Date.now()), 1000);
-  });
-  onDestroy(() => {
-    clearInterval(timer);
-    unsubscribeSettings();
-  });
-
-  function formatDuration(ms: number): string {
-    const sec = Math.floor(ms / 1000);
-    const h = Math.floor(sec / 3600)
-      .toString()
-      .padStart(2, '0');
-    const m = Math.floor((sec % 3600) / 60)
-      .toString()
-      .padStart(2, '0');
-    const s = Math.floor(sec % 60)
-      .toString()
-      .padStart(2, '0');
-    return `${h}:${m}:${s}`;
-  }
-
-  $: totalTime = task
-    ? task.activePeriods.reduce((sum, p) => {
-        const start = Math.max(p.start, dayStart);
-        const end = Math.min(p.end ?? now, dayEnd);
-        return end > start ? sum + (end - start) : sum;
-      }, 0)
-    : 0;
+  $: totalMs = task ? getTotalMs(task.activePeriods, $now) : 0;
+  $: displayTime = formatMs(totalMs);
 </script>
 
 <section
@@ -115,7 +74,7 @@
           on:click={() => cyclePriority(task.id)}
         ></span>
         <span class="title">{task.title}</span>
-        <span class="time">{formatDuration(totalTime)}</span>
+        <span class="time">{displayTime}</span>
       </div>
       <div class="tags">
         {#each [...task.tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })) as tag}
