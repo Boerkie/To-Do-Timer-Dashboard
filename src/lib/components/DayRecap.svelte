@@ -79,9 +79,18 @@
 </script>
 
 <div class="box-header">
-  <h2>{selectedDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</h2>
-  <button class="date-picker" on:click={() => dateInput.showPicker()} aria-label="Pick date">📅</button>
-  <input type="date" bind:value={dateString} on:change={onDateChange} bind:this={dateInput} style="display: none" />
+  <h2 class="header-title">{selectedDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</h2>
+  <div class="picker-group">
+	  <button class="date-picker" on:click={() => dateInput.showPicker()} aria-label="Pick date">📅</button>
+	  <!-- Invisible but layout-present input -->
+	  <input
+		type="date"
+		bind:this={dateInput}
+		bind:value={dateString}
+		on:change={onDateChange}
+		class="offscreen-input"
+	  />
+  </div>
 </div>
 <section class="recap-timeline">
   <div class="timeline-wrapper">
@@ -116,10 +125,19 @@
 
 <style>
   .box-header {
-    display: flex;
+  display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem;
+  }
+  .offscreen-input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    opacity: 0;        
+    pointer-events: none;
   }
   .recap-timeline {
     position: relative;

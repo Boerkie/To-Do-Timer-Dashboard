@@ -109,7 +109,6 @@
   /* allow recap to use remaining space */
   .recap-box {
     flex: 1;
-    display: flex;
     overflow: hidden;
     min-height: 0;
   }
