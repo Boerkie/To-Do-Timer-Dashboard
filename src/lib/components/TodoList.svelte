@@ -88,7 +88,6 @@
 <style>
   .todo-list {
     /* container with flexible layout */
-    padding: 1rem;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -99,7 +98,7 @@
   }
   .task-row {
     padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+    border-radius: 0.35rem;
     margin-bottom: 0.25rem;
     background: var(--bg-box);
     border: 2px solid var(--border);
@@ -152,6 +151,7 @@
 
   ol {
     list-style-position: outside;
+    margin-block-start: 0em;
     padding-left: 2rem;
   }
 
