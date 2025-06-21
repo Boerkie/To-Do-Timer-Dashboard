@@ -1,4 +1,4 @@
-// +layout.svelte
+<!-- +layout.svelte -->
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { settings } from '$lib/stores/settings';
