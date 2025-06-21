@@ -111,9 +111,9 @@
   align-items: baseline;
 }
 .prio {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 0.1rem;
+  width: 1rem;
+  height:1rem;
+  border-radius: 0.2rem;
   margin-right: 0.5rem;
   cursor: pointer;
 }
@@ -141,7 +141,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 2.5rem;
+  width: 5.5rem;
   display: none;
   align-items: center;
   justify-content: center;
@@ -150,13 +150,13 @@
 }
 .drop-left {
   left: 0;
-  background: #ffdddd;
-  border-right: 2px solid #ff4444;
+  background: linear-gradient(to left, transparent 0%, #ffdddd 80%, #ffdddd 100%);
+  border-left: 5px solid #ff4444;
 }
 .drop-right {
   right: 0;
-  background: #ddffdd;
-  border-left: 2px solid #44aa44;
+  background: linear-gradient(to right, transparent 0%, #ddffdd 80%, #ddffdd 100%);
+  border-right: 5px solid #44aa44;
 }
 .visible {
   display: flex;
