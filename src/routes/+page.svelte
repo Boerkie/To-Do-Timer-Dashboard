@@ -111,6 +111,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    width: 30vw;
     min-height: 0;
   }
   .header-row {
