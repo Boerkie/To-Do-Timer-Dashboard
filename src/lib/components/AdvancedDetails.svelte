@@ -26,7 +26,6 @@
   {#if task}
     <div class="header">
       <h3>{task.title}</h3>
-      <span class="time">{displayTime}</span>
     </div>
     <textarea placeholder="Task details" bind:value={task.details}></textarea>
     <div class="readonly">Today: {displayTime}</div>
