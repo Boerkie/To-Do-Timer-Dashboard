@@ -47,7 +47,11 @@
   const rangeMs = () => dayEndMs - dayStartMs;
 
   const recapData = derived([tasks, now], ([$tasks, $now]) => {
-    const entries: Array<{ task: TodoTask; periods: Array<{ start: number; end: number }>; first: number }> = [];
+    const entries: Array<{
+      task: TodoTask;
+      periods: Array<{ start: number; end: number }>;
+      first: number;
+    }> = [];
     $tasks.forEach((task) => {
       const periods: Array<{ start: number; end: number }> = [];
       task.activePeriods.forEach((p: ActivePeriod) => {
@@ -75,24 +79,37 @@
 </script>
 
 <div class="box-header">
-  <h2 class="header-title">{selectedDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</h2>
+  <h2 class="header-title">
+    {selectedDate.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })}
+  </h2>
   <div class="picker-group">
-	  <button class="date-picker" on:click={() => dateInput.showPicker()} aria-label="Pick date">📅</button>
-	  <!-- Invisible but layout-present input -->
-	  <input
-		type="date"
-		bind:this={dateInput}
-		bind:value={dateString}
-		on:change={onDateChange}
-		class="offscreen-input"
-	  />
+    <button
+      class="date-picker"
+      on:click={() => dateInput.showPicker()}
+      aria-label="Pick date">📅</button
+    >
+    <!-- Invisible but layout-present input -->
+    <input
+      type="date"
+      bind:this={dateInput}
+      bind:value={dateString}
+      on:change={onDateChange}
+      class="offscreen-input"
+    />
   </div>
 </div>
 <section class="recap-timeline">
   <div class="timeline-wrapper">
     <div class="time-grid">
       {#each hours as h}
-        <div class="hour-line" style:top={(h - dayStartMs) / rangeMs() * 100 + '%'}>
+        <div
+          class="hour-line"
+          style:top={((h - dayStartMs) / rangeMs()) * 100 + '%'}
+        >
           {new Date(h).toLocaleTimeString([], { hour: '2-digit' })}
         </div>
       {/each}
@@ -103,10 +120,21 @@
           {#each periods as { start, end }}
             <div
               class="event-bar"
-              style="background-color: {PRIORITY_COLORS[task.priority ?? 4]}; top: {(start - dayStartMs) / rangeMs() * 100}%; height: {(end - start) / rangeMs() * 100}%"
+              style="background-color: {PRIORITY_COLORS[
+                task.priority ?? 4
+              ]}; top: {((start - dayStartMs) / rangeMs()) *
+                100}%; height: {((end - start) / rangeMs()) * 100}%"
               title={`${task.title}: ${new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – ${new Date(end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
             >
-              <span class="bar-time">{new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – {new Date(end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              <span class="bar-time"
+                >{new Date(start).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })} – {new Date(end).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}</span
+              >
             </div>
           {/each}
           <div class="bar-label">
@@ -121,7 +149,7 @@
 
 <style>
   .box-header {
-  display: flex;
+    display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem;
@@ -132,7 +160,7 @@
     height: 0;
     margin: 0;
     padding: 0;
-    opacity: 0;        
+    opacity: 0;
     pointer-events: none;
   }
   .recap-timeline {
@@ -215,10 +243,18 @@
     height: 0.75rem;
     border-radius: 0.1rem;
   }
-  .p1 { background: #ff5555; }
-  .p2 { background: #ff9900; }
-  .p3 { background: #22aa22; }
-  .p4 { background: #888888; }
+  .p1 {
+    background: #ff5555;
+  }
+  .p2 {
+    background: #ff9900;
+  }
+  .p3 {
+    background: #22aa22;
+  }
+  .p4 {
+    background: #888888;
+  }
 
   .date-picker {
     border: none;
