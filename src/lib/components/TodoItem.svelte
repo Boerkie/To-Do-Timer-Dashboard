@@ -87,6 +87,7 @@
 <li
   class="task-row"
   bind:this={rowElement}
+  style="--task-border:{task.borderColor}"
   draggable="true"
   on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/task', task.id)}
   on:dragover|preventDefault={() => {}}
@@ -177,7 +178,7 @@
     border-radius: 0.35rem;
     margin: 0 0 0.25rem 0;
     background: var(--bg-box);
-    border: 2px solid var(--border);
+    border: 2px solid var(--task-border, var(--border));
     cursor: grab;
   }
   .row {

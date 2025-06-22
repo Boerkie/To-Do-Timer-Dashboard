@@ -120,10 +120,7 @@
           {#each periods as { start, end }}
             <div
               class="event-bar"
-              style="background-color: {PRIORITY_COLORS[
-                task.priority ?? 4
-              ]}; top: {((start - dayStartMs) / rangeMs()) *
-                100}%; height: {((end - start) / rangeMs()) * 100}%"
+              style="--bar-color:{task.borderColor ?? PRIORITY_COLORS[task.priority ?? 4]}; top:{((start - dayStartMs) / rangeMs()) * 100}%; height:{((end - start) / rangeMs()) * 100}%"
               title={`${task.title}: ${new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – ${new Date(end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
             >
               <span class="bar-time"
@@ -206,6 +203,7 @@
     overflow: hidden;
     color: #fff;
     font-size: 0.8rem;
+    background: var(--bar-color);
   }
   .bar-time {
     position: absolute;

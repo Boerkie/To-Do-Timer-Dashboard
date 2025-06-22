@@ -40,7 +40,7 @@
     <div class="box-title">Active</div>
     <div
       class="box active-box"
-      style="border-color: {$activeTask?.borderColor ?? 'transparent'}"
+      style="--active-bg:{$activeTask?.borderColor || 'var(--border)'}"
     >
       <ActiveTask task={$activeTask} />
     </div>
@@ -132,6 +132,9 @@
   .active-box,
   .cleared-box {
     max-height: 200px;
+  }
+  .active-box {
+    background-color: var(--active-bg, var(--border));
   }
   .todo-list-box {
     flex: 1 1 auto;
