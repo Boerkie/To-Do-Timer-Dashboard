@@ -19,6 +19,7 @@
 
 <section
   class="active-task"
+  class:has-task={task}
   on:dragover|preventDefault
   on:drop={(e: DragEvent) => {
     const id = e.dataTransfer?.getData('text/task');
@@ -36,6 +37,8 @@
   {#if task}
     <TodoItem
       task={task}
+      interceptDrop={false}
+      compact={true}
       on:dragstart={(e) => {
         showActions = true;
         (e as unknown as DragEvent).dataTransfer?.setData('text/active', task.id);
@@ -86,6 +89,10 @@
     border: 1px solid var(--border);
     border-radius: 0.25rem;
   }
+  .has-task {
+    padding: 0;
+    border: none;
+  }
 
   .action {
     position: absolute;
@@ -97,6 +104,7 @@
     justify-content: center;
     font-size: 1.5rem;
     user-select: none;
+    z-index: 1;
   }
   .drop-left {
     left: 0;
