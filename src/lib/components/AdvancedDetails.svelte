@@ -117,15 +117,13 @@
 
 <style>
   .advanced-details {
-    padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
   }
   .header {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+    margin-top: 0px;
   }
   textarea {
     width: 100%;
