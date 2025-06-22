@@ -84,6 +84,8 @@
         <span
           class="tag-pill"
           draggable="true"
+          role="button"
+          tabindex="0"
           on:dragstart={(e: DragEvent) =>
             e.dataTransfer?.setData('text/tag', tag)}
           on:dragend={(e: DragEvent) => {
