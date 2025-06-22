@@ -1,7 +1,7 @@
 {
 	"name": "todo-dashboard",
 	"private": true,
-	"version": "0.1.112",
+	"version": "1.2.146",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
