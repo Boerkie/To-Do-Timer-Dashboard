@@ -105,7 +105,6 @@
       <textarea placeholder="Task details" disabled readonly>Example details about this task. You can add notes here.</textarea>
       <div class="readonly">Today: 01:23:45</div>
       <div class="readonly">Yesterday: 02:34:56</div>
-      <div class="readonly">2025-06-20: 00:45:00</div>
       <div class="readonly priority-display">
         <span class="prio p2"></span>
         P2 - High

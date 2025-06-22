@@ -125,6 +125,9 @@
   .title {
     margin-right: auto;
   }
+  .time {
+    min-width: 8ch;
+  }
   .p1 {
     background: #ff5555;
   }
