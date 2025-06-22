@@ -18,14 +18,14 @@
   $: totalMs = task ? getTotalMs(task.activePeriods, $now) : 0;
   $: displayTime = formatMs(totalMs);
 
-   // raw totals for the last N days (excluding today)
+  // raw totals for the last N days (excluding today)
   let rawLastDaysTotals: { date: string; duration: string }[] = [];
   $: if (task) {
     const snapshotTimestamp = Date.now();
     rawLastDaysTotals = getLastDaysTotals(
       task.activePeriods,
       daysToShow,
-      snapshotTimestamp
+      snapshotTimestamp,
     );
   } else {
     rawLastDaysTotals = [];
@@ -34,7 +34,7 @@
   // only keep days with non-zero duration
   let lastDaysTotals: { date: string; duration: string }[] = [];
   $: lastDaysTotals = rawLastDaysTotals.filter(
-    ({ duration }) => duration !== '00:00:00'
+    ({ duration }) => duration !== '00:00:00',
   );
 
   // recompute yesterday's date string at each local midnight
@@ -49,7 +49,7 @@
     const dd = String(d.getDate()).padStart(2, '0');
     yesterdayDateStr = `${yyyy}-${mm}-${dd}`;
   }
-  
+
   function removeTag(tag: string) {
     if (!task) return;
     tasksStore.update((list) => {

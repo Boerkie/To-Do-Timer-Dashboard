@@ -16,7 +16,7 @@
     const style = get(tagStyles)[tag] || {
       bg: '#eeeeee',
       fg: '#000000',
-      border: '#cccccc'
+      border: '#cccccc',
     };
     editTag = tag;
     newName = tag;
@@ -40,7 +40,7 @@
 
   function toggleTag(tag: string) {
     tagFilter.update((list) =>
-      list.includes(tag) ? list.filter((t) => t !== tag) : [...list, tag]
+      list.includes(tag) ? list.filter((t) => t !== tag) : [...list, tag],
     );
   }
 
@@ -54,12 +54,13 @@
     {#each tags as tag}
       <span
         class="tag-pill {selected.includes(tag) ? 'selected' : ''}"
-        style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]?.fg};border-color:{get(tagStyles)[tag]?.border}"
+        style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]
+          ?.fg};border-color:{get(tagStyles)[tag]?.border}"
         draggable="true"
         on:contextmenu|preventDefault={() => startEdit(tag)}
-        on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/tag', tag)}
-        on:click={() => toggleTag(tag)}
-        >{tag}</span
+        on:dragstart={(e: DragEvent) =>
+          e.dataTransfer?.setData('text/tag', tag)}
+        on:click={() => toggleTag(tag)}>{tag}</span
       >
     {/each}
   </div>
@@ -99,34 +100,40 @@
 </section>
 
 <style>
-.tags-list { padding: 1rem; }
-.palette { display: flex; gap: 0.25rem; flex-wrap: wrap; }
-.tag-pill {
-  padding: 0.2rem 0.5rem;
-  border: var(--tag-border-width, 2px) solid var(--border);
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  user-select: none;
-  cursor: grab;
-}
-.tag-pill.selected {
-  outline: 2px solid var(--accent);
-}
-.filter-mode {
-  margin-top: 0.5rem;
-}
-.edit-dialog {
-  margin-top: 0.5rem;
-  border-collapse: collapse;
-  width: 100%;
-}
-.edit-dialog td {
-  padding: 0.25rem;
-}
-.edit-dialog input[type='color'] {
-  width: 100%;
-}
-.edit-dialog button {
-  width: 100%;
-}
+  .tags-list {
+    padding: 1rem;
+  }
+  .palette {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+  }
+  .tag-pill {
+    padding: 0.2rem 0.5rem;
+    border: var(--tag-border-width, 2px) solid var(--border);
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    user-select: none;
+    cursor: grab;
+  }
+  .tag-pill.selected {
+    outline: 2px solid var(--accent);
+  }
+  .filter-mode {
+    margin-top: 0.5rem;
+  }
+  .edit-dialog {
+    margin-top: 0.5rem;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  .edit-dialog td {
+    padding: 0.25rem;
+  }
+  .edit-dialog input[type='color'] {
+    width: 100%;
+  }
+  .edit-dialog button {
+    width: 100%;
+  }
 </style>

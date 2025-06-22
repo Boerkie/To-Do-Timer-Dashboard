@@ -8,12 +8,15 @@
   onMount(() => {
     const banner = document.querySelector('.page-banner') as HTMLElement;
     if (banner) {
-      document.documentElement.style.setProperty('--header-height', `${banner.offsetHeight}px`);
+      document.documentElement.style.setProperty(
+        '--header-height',
+        `${banner.offsetHeight}px`,
+      );
     }
     unsubscribe = settings.subscribe(({ theme, tagBorderWidth }) => {
       const themeClassMap = {
-        'light': 'theme-light',
-        'dark': 'theme-dark',
+        light: 'theme-light',
+        dark: 'theme-dark',
         'solarized-light': 'theme-solarized-light',
         'solarized-dark': 'theme-solarized-dark',
         'theme-dracula': 'theme-dracula',
@@ -26,8 +29,11 @@
         'theme-flat-forest': 'theme-flat-forest',
         'theme-autumn': 'theme-autumn',
       };
-      Object.values(themeClassMap).forEach(className => {
-        document.documentElement.classList.toggle(className, themeClassMap[theme] === className);
+      Object.values(themeClassMap).forEach((className) => {
+        document.documentElement.classList.toggle(
+          className,
+          themeClassMap[theme] === className,
+        );
       });
       document.documentElement.style.setProperty(
         '--tag-border-width',

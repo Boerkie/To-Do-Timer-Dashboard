@@ -38,9 +38,16 @@
   .priority-filter button.selected {
     outline: 2px solid var(--accent);
   }
-  .p1 { background: #ff5555; }
-  .p2 { background: #ff9900; }
-  .p3 { background: #22aa22; }
-  .p4 { background: #888888; }
+  .p1 {
+    background: #ff5555;
+  }
+  .p2 {
+    background: #ff9900;
+  }
+  .p3 {
+    background: #22aa22;
+  }
+  .p4 {
+    background: #888888;
+  }
 </style>
-

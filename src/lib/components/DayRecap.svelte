@@ -189,8 +189,8 @@
     display: flex;
     gap: 0.5rem;
     padding-left: 1rem;
-    height: 100%; /* Ensure it fills the wrapper */
-    overflow-y: visible; /* Prevent vertical scroll */
+    height: 100%;
+    overflow-y: visible;
   }
   .event-wrap {
     position: relative;

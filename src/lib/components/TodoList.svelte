@@ -8,7 +8,7 @@
     tagStyles,
     tasks as tasksStore,
     cyclePriority,
-    PRIORITY_LABELS
+    PRIORITY_LABELS,
   } from '$lib';
   import { settings } from '$lib/stores/settings';
   import { get } from 'svelte/store';
@@ -66,7 +66,9 @@
               on:click={() => cyclePriority(t.id)}
             ></button>
             <span class="title">{t.title}</span>
-            <span class="time">{formatMs(getTotalMs(t.activePeriods, $now))}</span>
+            <span class="time"
+              >{formatMs(getTotalMs(t.activePeriods, $now))}</span
+            >
           </div>
           <div class="tags">
             {#each [...t.tags].sort( (a, b) => a.localeCompare( b, undefined, { sensitivity: 'base' }, ), ) as tag}

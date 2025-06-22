@@ -8,7 +8,7 @@
   let showModal = false;
   let localSettings: Settings;
 
-  const unsubscribe = settings.subscribe(value => {
+  const unsubscribe = settings.subscribe((value) => {
     localSettings = { ...value };
   });
 
@@ -32,7 +32,7 @@
   }
 
   function toggleCleared() {
-    showCleared.update(v => !v);
+    showCleared.update((v) => !v);
   }
 
   onDestroy(unsubscribe);
@@ -41,13 +41,15 @@
 <header class="page-banner">
   <h1>⏳ {$settings.userName}'s TODO Timer Dashboard</h1>
   <div class="actions">
-    <button on:click={() => (showModal = true)} title="Settings">⚙️ Settings</button>
+    <button on:click={() => (showModal = true)} title="Settings"
+      >⚙️ Settings</button
+    >
   </div>
 </header>
 
 {#if showModal}
   <div class="modal-overlay" on:click={cancel}>
-  <div class="modal" on:click|stopPropagation>
+    <div class="modal" on:click|stopPropagation>
       <h2>Settings</h2>
       <form on:submit|preventDefault={saveSettings} class="settings-form">
         <label>
@@ -72,7 +74,11 @@
         </label>
         <label>
           Tag Border Width:
-          <input type="number" min="0" bind:value={localSettings.tagBorderWidth} />
+          <input
+            type="number"
+            min="0"
+            bind:value={localSettings.tagBorderWidth}
+          />
         </label>
         <label>
           Show List Numbers:
@@ -81,7 +87,9 @@
         <div class="form-buttons">
           <button type="button" on:click={exportData}>Export</button>
           <button type="button" on:click={importData}>Import</button>
-          <button type="button" on:click={toggleCleared}>{$showCleared ? 'Hide Cleared' : 'Show Cleared'}</button>
+          <button type="button" on:click={toggleCleared}
+            >{$showCleared ? 'Hide Cleared' : 'Show Cleared'}</button
+          >
         </div>
 
         <div class="modal-actions">
@@ -114,7 +122,10 @@
   }
   .modal-overlay {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;

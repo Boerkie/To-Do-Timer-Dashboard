@@ -16,8 +16,8 @@
     selectedDate,
     tags,
     showCleared,
-  } from "$lib";
-  import { now, getTotalMs, formatMs } from "$lib/timeUtils";
+  } from '$lib';
+  import { now, getTotalMs, formatMs } from '$lib/timeUtils';
 
   let boundDate: Date = $selectedDate;
   $: selectedDate.set(boundDate);

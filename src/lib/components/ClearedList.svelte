@@ -19,5 +19,7 @@
 </section>
 
 <style>
-.cleared-list { padding: 1rem; }
+  .cleared-list {
+    padding: 1rem;
+  }
 </style>
