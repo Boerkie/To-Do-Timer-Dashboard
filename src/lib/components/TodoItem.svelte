@@ -1,6 +1,6 @@
 <!-- TodoItem.svelte -->
 <script lang="ts">
-  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+  import { onMount, onDestroy, createEventDispatcher, tick } from 'svelte';
   import { get } from 'svelte/store';
   import type { TodoTask } from '$lib/types';
   import {
@@ -16,8 +16,13 @@
   export let task: TodoTask;
 
   let titleElement: HTMLSpanElement;
+  let rowElement: HTMLLIElement;
+  let overflowBtn: HTMLButtonElement;
+  let colorInput: HTMLInputElement;
   let isTall = false;
   let menuOpen = false;
+  let menuLeft = 0;
+  let menuTop = 0;
   let editingTitle = false;
   let showColorPicker = false;
   let draftTitle = task.title;
@@ -44,8 +49,18 @@
     dispatch('rename', { id: task.id, newName: draftTitle });
   }
 
-  function openColorPicker() {
+  async function openColorPicker() {
     showColorPicker = true;
+    await tick();
+    colorInput?.showPicker?.();
+  }
+
+  function toggleMenu() {
+    menuOpen = !menuOpen;
+    if (menuOpen) {
+      menuLeft = overflowBtn.offsetLeft;
+      menuTop = overflowBtn.offsetTop + overflowBtn.offsetHeight;
+    }
   }
 
   function applyBorder() {
@@ -71,6 +86,7 @@
 
 <li
   class="task-row"
+  bind:this={rowElement}
   draggable="true"
   on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/task', task.id)}
   on:dragover|preventDefault={() => {}}
@@ -109,10 +125,11 @@
     {/if}
     <button
       type="button"
+      bind:this={overflowBtn}
       class="overflow-btn {isTall ? 'absolute' : ''}"
       tabindex="0"
       aria-label="More actions"
-      on:click={() => (menuOpen = !menuOpen)}
+      on:click={toggleMenu}
     >
       ⋮
     </button>
@@ -129,6 +146,7 @@
   {#if menuOpen}
     <div
       class="menu"
+      style="left:{menuLeft}px;top:{menuTop}px;"
       on:mouseleave={() => (menuOpen = false)}
       use:clickOutside={() => (menuOpen = false)}
     >
@@ -136,6 +154,7 @@
         <input
           type="color"
           class="color-picker"
+          bind:this={colorInput}
           bind:value={draftBorderColor}
           on:change={applyBorder}
           on:blur={() => (menuOpen = false)}
@@ -153,9 +172,10 @@
 <style>
   .task-row {
     position: relative;
+    list-style: none;
     padding: 0.25rem 0.5rem;
     border-radius: 0.35rem;
-    margin-bottom: 0.25rem;
+    margin: 0 0 0.25rem 0;
     background: var(--bg-box);
     border: 2px solid var(--border);
     cursor: grab;
@@ -228,8 +248,6 @@
   }
   .menu {
     position: absolute;
-    top: 1.5rem;
-    right: 0.25rem;
     display: flex;
     flex-direction: column;
     background: var(--menu-bg);
