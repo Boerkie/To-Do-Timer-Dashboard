@@ -1,6 +1,6 @@
 <!-- TodoItem.svelte -->
 <script lang="ts">
-  import { onMount, onDestroy, createEventDispatcher, tick } from 'svelte';
+  import { createEventDispatcher, tick } from 'svelte';
   import { get } from 'svelte/store';
   import type { TodoTask } from '$lib/types';
   import {
@@ -16,6 +16,7 @@
   export let task: TodoTask;
   export let interceptDrop = true;
   export let compact = false;
+  export let useThemeBorder = false;
 
   let titleElement: HTMLSpanElement;
   let rowElement: HTMLLIElement;
@@ -66,7 +67,7 @@
     dispatch('delete', { id: task.id });
   }
 
-  $: borderStyleProps = task.borderColor
+  $: borderStyleProps = task.borderColor && !useThemeBorder
     ? { style: `--task-border: ${task.borderColor}` }
     : {};
 

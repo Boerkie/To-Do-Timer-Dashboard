@@ -89,7 +89,7 @@
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
     gap: 1rem;
-    padding: 1rem;
+    padding: 1rem 1rem 0 1rem;
     height: calc(100vh - var(--header-height));
     background-color: var(--bg-panel);
     color: var(--text-color);

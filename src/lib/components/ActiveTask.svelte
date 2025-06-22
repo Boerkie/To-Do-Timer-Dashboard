@@ -39,6 +39,7 @@
       task={task}
       interceptDrop={false}
       compact={true}
+      useThemeBorder={true}
       on:dragstart={(e) => {
         showActions = true;
         (e as unknown as DragEvent).dataTransfer?.setData('text/active', task.id);

@@ -60,7 +60,7 @@
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    padding: 1rem;
+    padding: 0px 1rem;
     background-color: var(--banner-bg);
   }
   .page-banner h1 {

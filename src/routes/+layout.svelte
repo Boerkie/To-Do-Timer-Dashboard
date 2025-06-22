@@ -177,7 +177,7 @@
   }
 
   :global(body) {
-    margin: 0;
+    margin: 0px;
     font-size: 120%;
     font-family: system-ui, sans-serif;
     background: var(--bg-panel);
