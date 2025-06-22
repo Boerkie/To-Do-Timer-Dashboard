@@ -166,6 +166,32 @@ export function cyclePriority(id: string) {
   });
 }
 
+export function renameTask(id: string, newName: string) {
+  tasks.update((list) => {
+    const task = list.find((t) => t.id === id);
+    if (task) {
+      task.title = newName;
+      task.updatedAt = Date.now();
+    }
+    return [...list];
+  });
+}
+
+export function changeBorder(id: string, borderColor: string) {
+  tasks.update((list) => {
+    const task = list.find((t) => t.id === id);
+    if (task) {
+      task.borderColor = borderColor;
+      task.updatedAt = Date.now();
+    }
+    return [...list];
+  });
+}
+
+export function deleteTask(id: string) {
+  tasks.update((list) => list.filter((t) => t.id !== id));
+}
+
 /** Add a new task from an input string. */
 export function addTask(input: string): void {
   const { title, tags, priority } = parseInput(input);

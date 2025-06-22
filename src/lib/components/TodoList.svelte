@@ -1,7 +1,13 @@
 <!-- TodoList.svelte -->
 <script lang="ts">
   import type { TodoTask } from '$lib/types';
-  import { deactivateTask, reorderTodo } from '$lib';
+  import {
+    deactivateTask,
+    reorderTodo,
+    renameTask,
+    changeBorder,
+    deleteTask as removeTask
+  } from '$lib';
   import TodoItem from './TodoItem.svelte';
   import { settings } from '$lib/stores/settings';
   export let tasks: TodoTask[] = [];
@@ -20,7 +26,12 @@
       }}
     >
       {#each tasks as t}
-        <TodoItem task={t} />
+        <TodoItem
+          task={t}
+          on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
+          on:changeBorder={(e) => changeBorder(e.detail.id, e.detail.borderColor)}
+          on:delete={(e) => removeTask(e.detail.id)}
+        />
       {/each}
     </ol>
   </div>
@@ -41,6 +52,7 @@
   ol {
     list-style-position: outside;
     margin-block-start: 0em;
+    margin-block-end: 0em;
     padding-left: 2rem;
   }
 
