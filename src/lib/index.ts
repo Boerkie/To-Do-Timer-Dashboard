@@ -6,3 +6,4 @@ export * from "./stores/tagStyles";
 export * from './stores/ui';
 export * from './constants';
 export * from './timeUtils';
+export * from './actions/clickOutside';

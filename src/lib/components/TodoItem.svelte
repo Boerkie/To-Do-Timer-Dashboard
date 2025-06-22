@@ -1,6 +1,6 @@
 <!-- TodoItem.svelte -->
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { get } from 'svelte/store';
   import type { TodoTask } from '$lib/types';
   import {
@@ -10,6 +10,7 @@
     tagStyles,
     PRIORITY_LABELS,
   } from '$lib';
+  import { clickOutside } from '$lib/actions/clickOutside';
   import { formatMs, getTotalMs, now } from '$lib/timeUtils';
 
   export let task: TodoTask;
@@ -17,7 +18,13 @@
   let titleElement: HTMLSpanElement;
   let isTall = false;
   let menuOpen = false;
+  let editingTitle = false;
+  let showColorPicker = false;
+  let draftTitle = task.title;
+  let draftBorderColor = task.borderColor || '#000000';
   let observer: ResizeObserver;
+
+  const dispatch = createEventDispatcher();
 
   // detect number of lines spanned by title
   function checkHeight() {
@@ -26,15 +33,29 @@
     isTall = titleElement.clientHeight / line >= 3;
   }
 
-  // placeholder action handlers
-  function renameTask(id: string) {
-    console.log('rename task', id);
+  function startRename() {
+    draftTitle = task.title;
+    editingTitle = true;
+    menuOpen = false;
   }
-  function changeBorder(id: string) {
-    console.log('change border', id);
+
+  function commitRename() {
+    editingTitle = false;
+    dispatch('rename', { id: task.id, newName: draftTitle });
   }
-  function deleteTask(id: string) {
-    console.log('delete task', id);
+
+  function openColorPicker() {
+    showColorPicker = true;
+  }
+
+  function applyBorder() {
+    showColorPicker = false;
+    menuOpen = false;
+    dispatch('changeBorder', { id: task.id, borderColor: draftBorderColor });
+  }
+
+  function deleteTask() {
+    dispatch('delete', { id: task.id });
   }
 
   onMount(() => {
@@ -75,7 +96,17 @@
       aria-label="Change priority"
       on:click={() => cyclePriority(task.id)}
     ></button>
-    <span class="title" bind:this={titleElement}>{task.title}</span>
+    {#if editingTitle}
+      <input
+        class="title-input"
+        bind:this={titleElement}
+        bind:value={draftTitle}
+        on:blur={commitRename}
+        on:keydown={(e) => e.key === 'Enter' && commitRename()}
+      />
+    {:else}
+      <span class="title" bind:this={titleElement} on:dblclick={startRename}>{task.title}</span>
+    {/if}
     <button
       type="button"
       class="overflow-btn {isTall ? 'absolute' : ''}"
@@ -96,11 +127,25 @@
     {/each}
   </div>
   {#if menuOpen}
-    <div class="menu">
-      <button type="button" on:click={() => renameTask(task.id)}>Rename</button>
-      <button type="button" on:click={() => changeBorder(task.id)}>Change border</button>
-      <div class="separator"></div>
-      <button type="button" on:click={() => deleteTask(task.id)}>Delete</button>
+    <div
+      class="menu"
+      on:mouseleave={() => (menuOpen = false)}
+      use:clickOutside={() => (menuOpen = false)}
+    >
+      {#if showColorPicker}
+        <input
+          type="color"
+          class="color-picker"
+          bind:value={draftBorderColor}
+          on:change={applyBorder}
+          on:blur={() => (menuOpen = false)}
+        />
+      {:else}
+        <button type="button" on:click={startRename}>Rename</button>
+        <button type="button" on:click={openColorPicker}>Change border</button>
+        <div class="separator"></div>
+        <button type="button" on:click={deleteTask}>Delete</button>
+      {/if}
     </div>
   {/if}
 </li>
@@ -146,6 +191,12 @@
   .title {
     flex: 1;
   }
+  .title-input {
+    flex: 1;
+    font: inherit;
+    background: transparent;
+    border: none;
+  }
   .tags {
     display: flex;
     flex-wrap: wrap;
@@ -181,21 +232,29 @@
     right: 0.25rem;
     display: flex;
     flex-direction: column;
-    background: var(--bg-box);
-    border: 1px solid var(--border);
+    background: var(--menu-bg);
+    color: var(--menu-text);
+    border: 1px solid var(--menu-border);
     border-radius: 0.25rem;
-    z-index: 1;
+    box-shadow: 0 2px 6px var(--menu-shadow);
+    z-index: 10;
   }
   .menu button {
-    background: none;
+    background: transparent;
     border: none;
     padding: 0.25rem 0.75rem;
     text-align: left;
+    color: inherit;
     cursor: pointer;
+  }
+  .color-picker {
+    width: 100%;
+    border: 1px solid var(--menu-border);
+    background: var(--menu-bg);
   }
   .separator {
     height: 1px;
-    background: var(--border);
+    background: var(--menu-border);
     margin: 0.25rem 0;
   }
 </style>

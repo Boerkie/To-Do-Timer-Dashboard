@@ -53,6 +53,10 @@
   :global(:root) {
     --tag-border-width: 2px;
     --header-height: 70px;
+    --menu-bg: var(--bg-box);
+    --menu-text: var(--text-color);
+    --menu-border: var(--border);
+    --menu-shadow: rgba(0, 0, 0, 0.3);
   }
   :global(.theme-light) {
     --bg-panel: #fafbfc;
