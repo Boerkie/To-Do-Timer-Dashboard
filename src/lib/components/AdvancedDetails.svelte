@@ -3,15 +3,53 @@
   import type { TodoTask } from '$lib/types';
   import { tagStyles, tasks as tasksStore, PRIORITY_LABELS } from '$lib';
   import { get } from 'svelte/store';
-  import { now, getTotalMs, formatMs } from '$lib/timeUtils';
+  import {
+    now,
+    getTotalMs,
+    formatMs,
+    getLastDaysTotals,
+    dayBoundary,
+  } from '$lib/timeUtils';
 
   export let task: TodoTask | null = null;
+  export let daysToShow = 7;
   let detailsSection: HTMLElement;
 
   $: totalMs = task ? getTotalMs(task.activePeriods, $now) : 0;
   $: displayTime = formatMs(totalMs);
 
+   // raw totals for the last N days (excluding today)
+  let rawLastDaysTotals: { date: string; duration: string }[] = [];
+  $: if (task) {
+    const snapshotTimestamp = Date.now();
+    rawLastDaysTotals = getLastDaysTotals(
+      task.activePeriods,
+      daysToShow,
+      snapshotTimestamp
+    );
+  } else {
+    rawLastDaysTotals = [];
+  }
 
+  // only keep days with non-zero duration
+  let lastDaysTotals: { date: string; duration: string }[] = [];
+  $: lastDaysTotals = rawLastDaysTotals.filter(
+    ({ duration }) => duration !== '00:00:00'
+  );
+
+  // recompute yesterday's date string at each local midnight
+  let yesterdayDateStr = '';
+  $: if ($dayBoundary) {
+    const d = new Date($dayBoundary);
+    d.setDate(d.getDate() - 1);
+    d.setHours(0, 0, 0, 0);
+
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    yesterdayDateStr = `${yyyy}-${mm}-${dd}`;
+  }
+  
   function removeTag(tag: string) {
     if (!task) return;
     tasksStore.update((list) => {
@@ -29,25 +67,33 @@
     </div>
     <textarea placeholder="Task details" bind:value={task.details}></textarea>
     <div class="readonly">Today: {displayTime}</div>
+    {#each lastDaysTotals as { date, duration }}
+      <div class="readonly">
+        {date === yesterdayDateStr ? 'Yesterday' : date}: {duration}
+      </div>
+    {/each}
     <div class="readonly priority-display">
       <span class="prio p{task.priority ?? 4}"></span>
       {PRIORITY_LABELS[task.priority ?? 4]}
     </div>
-    <div class="readonly">Created: {new Date(task.createdAt).toLocaleString()}</div>
+    <div class="readonly">
+      Created: {new Date(task.createdAt).toLocaleString()}
+    </div>
     <div class="tags">
-      {#each [...task.tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })) as tag}
+      {#each [...task.tags].sort( (a, b) => a.localeCompare( b, undefined, { sensitivity: 'base' }, ), ) as tag}
         <span
           class="tag-pill"
           draggable="true"
-          on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/tag', tag)}
+          on:dragstart={(e: DragEvent) =>
+            e.dataTransfer?.setData('text/tag', tag)}
           on:dragend={(e: DragEvent) => {
             const el = detailsSection;
             if (!el.contains(document.elementFromPoint(e.clientX, e.clientY))) {
               removeTag(tag);
             }
           }}
-          style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]?.fg};border-color:{get(tagStyles)[tag]?.border}"
-          >{tag}</span
+          style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]
+            ?.fg};border-color:{get(tagStyles)[tag]?.border}">{tag}</span
         >
       {/each}
     </div>
@@ -111,10 +157,18 @@
     height: 0.75rem;
     border-radius: 0.1rem;
   }
-  .p1 { background: #ff5555; }
-  .p2 { background: #ff9900; }
-  .p3 { background: #22aa22; }
-  .p4 { background: #888888; }
+  .p1 {
+    background: #ff5555;
+  }
+  .p2 {
+    background: #ff9900;
+  }
+  .p3 {
+    background: #22aa22;
+  }
+  .p4 {
+    background: #888888;
+  }
   .placeholder {
     visibility: hidden;
   }

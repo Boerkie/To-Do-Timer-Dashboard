@@ -2,6 +2,30 @@
 import { readable, get } from 'svelte/store';
 import { settings } from '$lib/stores/settings';
 
+// Emits a new Date() exactly at each local midnight
+export const dayBoundary = readable(new Date(), (set) => {
+  // Schedule the next tick at the upcoming midnight
+  function scheduleNext() {
+    const now = new Date();
+    const nextMidnight = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1,
+      0, 0, 0, 0
+    );
+    const msUntil = nextMidnight.getTime() - now.getTime();
+
+    const timer = setTimeout(() => {
+      set(new Date());
+      scheduleNext();
+    }, msUntil);
+
+    return () => clearTimeout(timer);
+  }
+
+  return scheduleNext();
+});
+
 export const now = readable(Date.now(), (set) => {
   const iv = setInterval(() => set(Date.now()), 1000);
   return () => clearInterval(iv);
@@ -35,4 +59,42 @@ export function formatMs(ms: number): string {
   const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
   const s = String(totalSec % 60).padStart(2, '0');
   return `${h}:${m}:${s}`;
+}
+
+export function getLastDaysTotals(
+  periods: Array<{ start: number; end?: number | null }>,
+  numberOfDays: number,
+  referenceTime: number = Date.now()
+): { date: string; duration: string }[] {
+  const results: { date: string; duration: string }[] = [];
+
+  for (let dayOffset = 1; dayOffset <= numberOfDays; dayOffset++) {
+    // Determine the midnight start of the target day in local time
+    const dayStartDate = new Date(referenceTime - dayOffset * 24 * 60 * 60 * 1000);
+    dayStartDate.setHours(0, 0, 0, 0);
+
+    // Compute millisecond bounds for the entire day
+    const dayStartMs = dayStartDate.getTime();
+    const dayEndMs = dayStartMs + 24 * 60 * 60 * 1000;
+
+    // Aggregate total milliseconds of any period overlapping this day
+    const totalMs = periods.reduce((sum, p) => {
+      const s = Math.max(p.start, dayStartMs);
+      const e = Math.min(p.end ?? dayEndMs, dayEndMs);
+      return sum + Math.max(0, e - s);
+    }, 0);
+
+    // Build date string in yyyy-MM-dd format
+    const yyyy = dayStartDate.getFullYear();
+    const mm = String(dayStartDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(dayStartDate.getDate()).padStart(2, '0');
+    const dateStr = `${yyyy}-${mm}-${dd}`;
+
+    // Convert milliseconds to hh:mm:ss using the existing formatter
+    const durationStr = formatMs(totalMs);
+
+    results.push({ date: dateStr, duration: durationStr });
+  }
+
+  return results;
 }
