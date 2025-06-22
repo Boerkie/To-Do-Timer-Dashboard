@@ -11,7 +11,7 @@ function parseInput(
   input: string
 ): { title: string; tags: string[]; priority: number } {
   const tags: string[] = [];
-  let priority = 4;
+  let priority = 3;
   const prioMatch = input.match(/!([1-4])/);
   if (prioMatch) {
     priority = parseInt(prioMatch[1]);

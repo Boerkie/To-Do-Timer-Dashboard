@@ -52,15 +52,24 @@
 <section class="tags-list">
   <div class="palette">
     {#each tags as tag}
-      <span
+      <button
+        type="button"
         class="tag-pill {selected.includes(tag) ? 'selected' : ''}"
         style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]
           ?.fg};border-color:{get(tagStyles)[tag]?.border}"
         draggable="true"
+        aria-pressed={selected.includes(tag)}
+        aria-label="Tag: {tag}"
         on:contextmenu|preventDefault={() => startEdit(tag)}
         on:dragstart={(e: DragEvent) =>
           e.dataTransfer?.setData('text/tag', tag)}
-        on:click={() => toggleTag(tag)}>{tag}</span
+        on:click={() => toggleTag(tag)}
+        on:keydown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleTag(tag);
+          }
+        }}>{tag}</button
       >
     {/each}
   </div>
