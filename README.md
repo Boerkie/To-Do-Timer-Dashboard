@@ -1,11 +1,3 @@
-# TODO Timer Dashboard
-
-This project is a SvelteKit based application for tracking tasks with timed active periods.
-
-Detailed interface information and requirements are in [docs/README.md](docs/README.md).
-Component stubs are detailed in [components.md](components.md).
-
----
 # sv
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
