@@ -34,51 +34,41 @@
   }}
 >
   {#if task}
-    <div
-      class="current"
-      draggable="true"
-      on:dragstart={(e: DragEvent) => {
+    <TodoItem
+      task={task}
+      on:dragstart={(e) => {
         showActions = true;
-        e.dataTransfer?.setData('text/active', task.id);
+        (e as unknown as DragEvent).dataTransfer?.setData('text/active', task.id);
       }}
       on:dragend={() => (showActions = false)}
+      on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
+      on:changeBorder={(e) => changeBorder(e.detail.id, e.detail.borderColor)}
+      on:delete={(e) => deleteTask(e.detail.id)}
+    />
+    <div
+      class="action drop-left"
+      class:visible={showActions}
+      on:dragover|preventDefault
+      on:drop={(e: DragEvent) => {
+        e.stopPropagation();
+        moveToTop(task.id);
+        deactivateTask(task.id);
+        showActions = false;
+      }}
     >
-      <div
-        class="action drop-left"
-        class:visible={showActions}
-        on:dragover|preventDefault
-        on:drop={(e: DragEvent) => {
-          e.stopPropagation();
-          moveToTop(task.id);
-          deactivateTask(task.id);
-          showActions = false;
-        }}
-      >
-        ❌
-      </div>
-      <div
-        class="action drop-right"
-        class:visible={showActions}
-        on:dragover|preventDefault
-        on:drop={(e: DragEvent) => {
-          e.stopPropagation();
-          clearTask(task.id);
-          showActions = false;
-        }}
-      >
-        ✅
-      </div>
-      <TodoItem
-        task={task}
-        on:dragstart={(e: DragEvent) => {
-          showActions = true;
-          e.dataTransfer?.setData('text/active', task.id);
-        }}
-        on:dragend={() => (showActions = false)}
-        on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
-        on:changeBorder={(e) => changeBorder(e.detail.id, e.detail.borderColor)}
-        on:delete={(e) => deleteTask(e.detail.id)}
-      />
+      ❌
+    </div>
+    <div
+      class="action drop-right"
+      class:visible={showActions}
+      on:dragover|preventDefault
+      on:drop={(e: DragEvent) => {
+        e.stopPropagation();
+        clearTask(task.id);
+        showActions = false;
+      }}
+    >
+      ✅
     </div>
   {:else}
     <p>No active task</p>
@@ -87,9 +77,6 @@
 
 <style>
   .active-task {
-    padding: 0;
-  }
-  .current {
     position: relative;
     display: flex;
     flex-direction: column;

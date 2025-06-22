@@ -1,7 +1,6 @@
 <!-- PriorityFilter.svelte -->
 <script lang="ts">
   import { PRIORITY_LABELS, priorityFilter } from '$lib';
-  import { get } from 'svelte/store';
 
   const priorities = [1, 2, 3, 4];
 
@@ -13,7 +12,8 @@
 <section class="priority-filter">
   {#each priorities as p}
     <button
-      class="prio p{p} {get(priorityFilter) === p ? 'selected' : ''}"
+      class="prio p{p}"
+      class:selected={$priorityFilter === p}
       type="button"
       on:click={() => toggle(p)}
     >
