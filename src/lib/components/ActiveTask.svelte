@@ -6,19 +6,15 @@
     deactivateTask,
     clearTask,
     moveToTop,
-    tagStyles,
     tasks as tasksStore,
-    cyclePriority,
-    PRIORITY_LABELS,
+    renameTask,
+    changeBorder,
+    deleteTask
   } from '$lib';
-  import { get } from 'svelte/store';
-  import { now, getTotalMs, formatMs } from '$lib/timeUtils';
+  import TodoItem from './TodoItem.svelte';
   export let task: TodoTask | null = null;
 
   let showActions = false;
-
-  $: totalMs = task ? getTotalMs(task.activePeriods, $now) : 0;
-  $: displayTime = formatMs(totalMs);
 </script>
 
 <section
@@ -72,25 +68,17 @@
       >
         ✅
       </div>
-      <div class="row">
-        <span
-          class="prio p{task.priority ?? 4}"
-          title={PRIORITY_LABELS[task.priority ?? 4]}
-          on:click={() => cyclePriority(task.id)}
-        ></span>
-        <span class="title">{task.title}</span>
-        <span class="time">{displayTime}</span>
-      </div>
-      <div class="tags">
-        {#each [...task.tags].sort( (a, b) => a.localeCompare( b, undefined, { sensitivity: 'base' }, ), ) as tag}
-          <span
-            class="tag-pill"
-            style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[
-              tag
-            ]?.fg};border-color:{get(tagStyles)[tag]?.border}">{tag}</span
-          >
-        {/each}
-      </div>
+      <TodoItem
+        task={task}
+        on:dragstart={(e: DragEvent) => {
+          showActions = true;
+          e.dataTransfer?.setData('text/active', task.id);
+        }}
+        on:dragend={() => (showActions = false)}
+        on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
+        on:changeBorder={(e) => changeBorder(e.detail.id, e.detail.borderColor)}
+        on:delete={(e) => deleteTask(e.detail.id)}
+      />
     </div>
   {:else}
     <p>No active task</p>
@@ -110,47 +98,6 @@
     background: var(--bg-box);
     border: 1px solid var(--border);
     border-radius: 0.25rem;
-  }
-  .row {
-    display: flex;
-    align-items: baseline;
-  }
-  .prio {
-    width: 1rem;
-    height: 1rem;
-    border-radius: 0.2rem;
-    margin-right: 0.5rem;
-    cursor: pointer;
-  }
-  .title {
-    margin-right: auto;
-  }
-  .time {
-    min-width: 8ch;
-  }
-  .p1 {
-    background: #ff5555;
-  }
-  .p2 {
-    background: #ff9900;
-  }
-  .p3 {
-    background: #22aa22;
-  }
-  .p4 {
-    background: #888888;
-  }
-  .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    justify-content: flex-end;
-  }
-  .tag-pill {
-    padding: 0.1rem 0.3rem;
-    border: var(--tag-border-width, 2px) solid var(--border);
-    border-radius: 0.5rem;
-    font-size: 0.7rem;
   }
 
   .action {
