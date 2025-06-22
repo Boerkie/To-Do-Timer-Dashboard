@@ -16,6 +16,8 @@
     selectedDate,
     tags,
     showCleared,
+    renameTask,
+    addTag,
   } from '$lib';
   import { now, getTotalMs, formatMs } from '$lib/timeUtils';
 
@@ -65,7 +67,11 @@
   <div class="right-panel">
     <div class="box-title">Details</div>
     <div class="box details-box">
-      <AdvancedDetails task={$activeTask} />
+      <AdvancedDetails
+        task={$activeTask}
+        on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
+        on:addTag={(e) => addTag(e.detail.id, e.detail.tagName)}
+      />
     </div>
     <div class="box-title">Priority</div>
     <div class="box priority-box">

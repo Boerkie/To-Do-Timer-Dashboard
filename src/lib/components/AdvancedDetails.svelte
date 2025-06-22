@@ -1,8 +1,9 @@
 <!-- AdvancedDetails.svelte -->
 <script lang="ts">
   import type { TodoTask } from '$lib/types';
-  import { tagStyles, tasks as tasksStore, PRIORITY_LABELS } from '$lib';
+  import { tagStyles, tasks as tasksStore, PRIORITY_LABELS, ensureTagStyle } from '$lib';
   import { get } from 'svelte/store';
+  import { createEventDispatcher } from 'svelte';
   import {
     now,
     getTotalMs,
@@ -14,6 +15,13 @@
   export let task: TodoTask | null = null;
   export let daysToShow = 7;
   let detailsSection: HTMLElement;
+  const dispatch = createEventDispatcher();
+
+  let editingTitle = false;
+  let draftTitle = '';
+  let addingTag = false;
+  let newTag = '';
+  const MAX_TAG_LENGTH = 20;
 
   $: totalMs = task ? getTotalMs(task.activePeriods, $now) : 0;
   $: displayTime = formatMs(totalMs);
@@ -58,12 +66,58 @@
       return [...list];
     });
   }
+
+  function startTitleEdit() {
+    if (!task) return;
+    draftTitle = task.title;
+    editingTitle = true;
+  }
+
+  function commitTitle() {
+    if (!task) return;
+    editingTitle = false;
+    dispatch('rename', { id: task.id, newName: draftTitle });
+  }
+
+  function startAddTag() {
+    addingTag = true;
+    newTag = '';
+  }
+
+  function commitTag() {
+    if (!task) {
+      addingTag = false;
+      return;
+    }
+    const tagName = newTag.trim();
+    const valid = /^[A-Za-z0-9_-]+$/.test(tagName);
+    if (
+      tagName &&
+      valid &&
+      tagName.length <= MAX_TAG_LENGTH &&
+      !task.tags.some((t) => t.toLowerCase() === tagName.toLowerCase())
+    ) {
+      ensureTagStyle(tagName);
+      dispatch('addTag', { id: task.id, tagName });
+    }
+    addingTag = false;
+  }
 </script>
 
 <section class="advanced-details" bind:this={detailsSection}>
   {#if task}
-    <div class="header">
-      <h3>{task.title}</h3>
+    <div class="header" on:dblclick={startTitleEdit}>
+      {#if editingTitle}
+        <input
+          class="title-input"
+          bind:value={draftTitle}
+          on:blur={commitTitle}
+          on:keydown={(e) => e.key === 'Enter' && commitTitle()}
+        />
+      {:else}
+        <h3>{task.title}</h3>
+        <span class="edit-icon" on:click={startTitleEdit}>✎</span>
+      {/if}
     </div>
     <textarea placeholder="Task details" bind:value={task.details}></textarea>
     <div class="readonly">Today: {displayTime}</div>
@@ -98,6 +152,16 @@
             ?.fg};border-color:{get(tagStyles)[tag]?.border}">{tag}</span
         >
       {/each}
+      {#if addingTag}
+        <input
+          class="tag-pill tag-input"
+          bind:value={newTag}
+          on:blur={commitTag}
+          on:keydown={(e) => e.key === 'Enter' && commitTag()}
+        />
+      {:else}
+        <button type="button" class="tag-pill add-tag" on:click={startAddTag}>[+]</button>
+      {/if}
     </div>
   {:else}
     <div class="placeholder">
@@ -129,11 +193,30 @@
     gap: 0.5rem;
   }
   .header {
+    position: relative;
     display: flex;
     margin-top: 0px;
   }
+  .edit-icon {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+  .header:hover .edit-icon {
+    opacity: 1;
+  }
   h3 {
     margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  .title-input {
+    font: inherit;
+    border: none;
+    background: transparent;
+    width: 100%;
     margin-bottom: 1rem;
   }
   textarea {
@@ -144,7 +227,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
-    justify-content: flex-start;
   }
   .tag-pill {
     padding: 0.2rem 0.5rem;
@@ -152,6 +234,16 @@
     border: var(--tag-border-width, 2px) solid var(--border);
     font-size: 0.75rem;
     cursor: grab;
+  }
+  .add-tag {
+    margin-left: auto;
+    cursor: pointer;
+  }
+  .tag-input {
+    margin-left: auto;
+    font: inherit;
+    border: none;
+    background: transparent;
   }
   .readonly {
     font-size: 0.8rem;

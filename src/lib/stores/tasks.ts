@@ -188,6 +188,18 @@ export function changeBorder(id: string, borderColor: string) {
   });
 }
 
+export function addTag(id: string, tagName: string) {
+  if (!tagName.match(/^[A-Za-z0-9_-]+$/) || tagName.length > 20) return;
+  tasks.update((list) => {
+    const task = list.find((t) => t.id === id);
+    if (task && !task.tags.includes(tagName)) {
+      task.tags = [...task.tags, tagName];
+      ensureTagStyle(tagName);
+    }
+    return [...list];
+  });
+}
+
 export function deleteTask(id: string) {
   tasks.update((list) => list.filter((t) => t.id !== id));
 }
