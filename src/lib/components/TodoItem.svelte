@@ -14,6 +14,8 @@
   import { formatMs, getTotalMs, now } from '$lib/timeUtils';
 
   export let task: TodoTask;
+  export let interceptDrop = true;
+  export let compact = false;
 
   let titleElement: HTMLSpanElement;
   let rowElement: HTMLLIElement;
@@ -72,12 +74,14 @@
 
 <li
   class="task-row"
+  class:compact={compact}
   bind:this={rowElement}
   {...borderStyleProps}
   draggable="true"
   on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/task', task.id)}
   on:dragover|preventDefault={() => {}}
   on:drop={(e: DragEvent) => {
+    if (!interceptDrop) return;
     e.stopPropagation();
     const id = e.dataTransfer?.getData('text/task');
     if (id && id !== task.id) reorderTodo(id, task.id);
@@ -89,8 +93,7 @@
         return [...list];
       });
     }
-  }}
->
+  }}>
   <div class="row">
     <button
       type="button"
@@ -165,6 +168,9 @@
     background: var(--bg-box);
     border: 2px solid var(--task-border, var(--border));
     cursor: grab;
+  }
+  .compact {
+    margin: 0;
   }
   .row {
     display: flex;
