@@ -198,9 +198,6 @@
     margin-top: 0px;
   }
   .edit-icon {
-    position: absolute;
-    right: 0;
-    bottom: 0;
     opacity: 0;
     cursor: pointer;
     font-size: 0.8rem;
