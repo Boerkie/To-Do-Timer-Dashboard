@@ -19,7 +19,6 @@
   let rowElement: HTMLLIElement;
   let overflowBtn: HTMLButtonElement;
   let colorInput: HTMLInputElement;
-  let isTall = false;
   let menuOpen = false;
   let menuLeft = 0;
   let menuTop = 0;
@@ -27,16 +26,8 @@
   let showColorPicker = false;
   let draftTitle = task.title;
   let draftBorderColor = task.borderColor || '#000000';
-  let observer: ResizeObserver;
 
   const dispatch = createEventDispatcher();
-
-  // detect number of lines spanned by title
-  function checkHeight() {
-    const style = getComputedStyle(titleElement);
-    const line = parseFloat(style.lineHeight);
-    isTall = titleElement.clientHeight / line >= 3;
-  }
 
   function startRename() {
     draftTitle = task.title;
@@ -73,21 +64,16 @@
     dispatch('delete', { id: task.id });
   }
 
-  onMount(() => {
-    checkHeight();
-    observer = new ResizeObserver(checkHeight);
-    observer.observe(titleElement);
-  });
+  $: borderStyleProps = task.borderColor
+    ? { style: `--task-border: ${task.borderColor}` }
+    : {};
 
-  onDestroy(() => {
-    observer.disconnect();
-  });
 </script>
 
 <li
   class="task-row"
   bind:this={rowElement}
-  style="--task-border:{task.borderColor}"
+  {...borderStyleProps}
   draggable="true"
   on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/task', task.id)}
   on:dragover|preventDefault={() => {}}
@@ -127,7 +113,6 @@
     <button
       type="button"
       bind:this={overflowBtn}
-      class="overflow-btn {isTall ? 'absolute' : ''}"
       tabindex="0"
       aria-label="More actions"
       on:click={toggleMenu}
