@@ -8,3 +8,4 @@ export { default as TagsList } from './TagsList.svelte';
 export { default as PriorityFilter } from './PriorityFilter.svelte';
 export { default as AddBar } from './AddBar.svelte';
 export { default as TodoItem } from './TodoItem.svelte';
+export { default as SettingsModal } from './Settings.svelte';
