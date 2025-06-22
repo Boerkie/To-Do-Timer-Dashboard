@@ -100,17 +100,23 @@
   {:else}
     <div class="placeholder">
       <div class="header">
-        <h3>&nbsp;</h3>
-        <span class="time">00:00:00</span>
+        <h3>Example Task</h3>
       </div>
-      <textarea placeholder="Task details" disabled></textarea>
-      <div class="readonly">Today: 00:00:00</div>
+      <textarea placeholder="Task details" disabled readonly>Example details about this task. You can add notes here.</textarea>
+      <div class="readonly">Today: 01:23:45</div>
+      <div class="readonly">Yesterday: 02:34:56</div>
+      <div class="readonly">2025-06-20: 00:45:00</div>
       <div class="readonly priority-display">
-        <span class="prio p4"></span>
-        P4 - Low
+        <span class="prio p2"></span>
+        P2 - High
       </div>
-      <div class="readonly">Created:</div>
-      <div class="tags"></div>
+      <div class="readonly">
+        Created: 2025-06-19 09:00:00
+      </div>
+      <div class="tags">
+        <span class="tag-pill" style="background:#ffeb3b;color:#333;border-color:#fbc02d" tabindex="-1">work</span>
+        <span class="tag-pill" style="background:#90caf9;color:#333;border-color:#1976d2" tabindex="-1">project</span>
+      </div>
     </div>
   {/if}
 </section>
@@ -124,6 +130,10 @@
   .header {
     display: flex;
     margin-top: 0px;
+  }
+  h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
   }
   textarea {
     width: 100%;
@@ -167,7 +177,5 @@
   .p4 {
     background: #888888;
   }
-  .placeholder {
-    visibility: hidden;
-  }
+
 </style>

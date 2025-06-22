@@ -154,7 +154,7 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 5.5rem;
+    width: 6rem;
     display: none;
     align-items: center;
     justify-content: center;
