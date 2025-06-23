@@ -15,15 +15,32 @@
   export let task: TodoTask | null = null;
 
   let showActions = false;
-</script>
 
-<section
-  class="active-task"
-  class:has-task={task}
-  on:dragover|preventDefault
-  on:dragenter={() => (showActions = true)}
-  on:dragleave={() => (showActions = false)}
-  on:drop={(e: DragEvent) => {
+  function handleWrapperDragStart(e: DragEvent) {
+    if (task) e.dataTransfer?.setData('text/task', task.id);
+    showActions = true;
+  }
+
+  function handleWrapperDragEnd() {
+    showActions = false;
+  }
+
+  function dropMoveBack(e: DragEvent) {
+    e.stopPropagation();
+    if (!task) return;
+    moveToTop(task.id);
+    deactivateTask(task.id);
+    showActions = false;
+  }
+
+  function dropClear(e: DragEvent) {
+    e.stopPropagation();
+    if (!task) return;
+    clearTask(task.id);
+    showActions = false;
+  }
+
+  function sectionDrop(e: DragEvent) {
     const id = e.dataTransfer?.getData('text/task');
     const tag = e.dataTransfer?.getData('text/tag');
     if (id) activateTask(id);
@@ -34,51 +51,51 @@
         return [...list];
       });
     }
-  }}
+  }
+</script>
+
+<section
+  class="active-task"
+  class:has-task={task}
+  on:dragover|preventDefault
+  on:dragenter={() => (showActions = true)}
+  on:dragleave={() => (showActions = false)}
+  on:drop={sectionDrop}
 >
   {#if task}
-    <TodoItem
-      task={task}
-      interceptDrop={false}
-      compact={true}
-      useThemeBorder={true}
-      on:dragstart={(e) => {
-        showActions = true;
-        console.log('dragstart active', task.id);
-        (e as unknown as DragEvent).dataTransfer?.setData('text/task', task.id);
-      }}
-      on:dragend={() => {
-        console.log('dragend active');
-        showActions = false;
-      }}
-      on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
-      on:changeBorder={(e) => changeBorder(e.detail.id, e.detail.borderColor)}
-      on:delete={(e) => deleteTask(e.detail.id)}
-    />
     <div
-      class="action drop-left"
-      class:visible={showActions}
-      on:dragover|preventDefault
-      on:drop={(e: DragEvent) => {
-        e.stopPropagation();
-        moveToTop(task.id);
-        deactivateTask(task.id);
-        showActions = false;
-      }}
+      class="current"
+      draggable="true"
+      on:dragstart={handleWrapperDragStart}
+      on:dragend={handleWrapperDragEnd}
+      on:dragenter={() => (showActions = true)}
+      on:dragleave={() => (showActions = false)}
     >
-      ❌
-    </div>
-    <div
-      class="action drop-right"
-      class:visible={showActions}
-      on:dragover|preventDefault
-      on:drop={(e: DragEvent) => {
-        e.stopPropagation();
-        clearTask(task.id);
-        showActions = false;
-      }}
-    >
-      ✅
+      <TodoItem
+        task={task}
+        interceptDrop={false}
+        compact={true}
+        useThemeBorder={true}
+        on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
+        on:changeBorder={(e) => changeBorder(e.detail.id, e.detail.borderColor)}
+        on:delete={(e) => deleteTask(e.detail.id)}
+      />
+      <div
+        class="action drop-left"
+        class:visible={showActions}
+        on:dragover|preventDefault
+        on:drop={dropMoveBack}
+      >
+        ❌
+      </div>
+      <div
+        class="action drop-right"
+        class:visible={showActions}
+        on:dragover|preventDefault
+        on:drop={dropClear}
+      >
+        ✅
+      </div>
     </div>
   {:else}
     <p>No active task</p>
@@ -135,5 +152,10 @@
   }
   .visible {
     display: flex;
+  }
+
+  .current {
+    display: inline-flex;
+    position: relative;
   }
 </style>
