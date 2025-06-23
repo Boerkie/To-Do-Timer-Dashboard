@@ -106,7 +106,7 @@
 
 <section class="advanced-details" bind:this={detailsSection}>
   {#if task}
-    <div class="header" on:dblclick={startTitleEdit}>
+    <div class="header" on:dblclick={startTitleEdit} role="button" tabindex="0" aria-label="Edit title (double click)">
       {#if editingTitle}
         <input
           class="title-input"
@@ -116,7 +116,13 @@
         />
       {:else}
         <h3>{task.title}</h3>
-        <span class="edit-icon" on:click={startTitleEdit}>✎</span>
+        <button
+          type="button"
+          class="edit-icon"
+          aria-label="Edit title"
+          on:click={startTitleEdit}
+          on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && startTitleEdit()}
+        >✎</button>
       {/if}
     </div>
     <textarea placeholder="Task details" bind:value={task.details}></textarea>
@@ -201,6 +207,10 @@
     opacity: 0;
     cursor: pointer;
     font-size: 0.8rem;
+    background: var(--bg-box);
+    border: none;
+    color: var(--contrast-color);
+    height: 2rem;
   }
   .header:hover .edit-icon {
     opacity: 1;
@@ -215,6 +225,7 @@
     background: transparent;
     width: 100%;
     margin-bottom: 1rem;
+    color: var(--contrast-color);
   }
   textarea {
     width: 100%;

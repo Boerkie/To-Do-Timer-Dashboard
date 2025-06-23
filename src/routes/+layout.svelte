@@ -57,6 +57,7 @@
     --menu-text: var(--text-color);
     --menu-border: var(--border);
     --menu-shadow: rgba(0, 0, 0, 0.3);
+    --contrast-color: #1a1a1a;
   }
   :global(.theme-light) {
     --bg-panel: #fafbfc;
@@ -75,6 +76,7 @@
     --accent: #60aaff;
     --banner-bg: var(--bg-box);
     --modal-bg: var(--bg-box);
+    --contrast-color: #fff;
   }
   :global(.theme-solarized-light) {
     --bg-panel: #fdf6e3;
@@ -93,6 +95,7 @@
     --accent: #268bd2;
     --banner-bg: var(--bg-box);
     --modal-bg: var(--bg-box);
+    --contrast-color: #ddd;
   }
   :global(.theme-dracula) {
     --bg-panel: #282a36;
@@ -102,6 +105,7 @@
     --accent: #ff79c6;
     --banner-bg: var(--bg-box);
     --modal-bg: var(--bg-box);
+    --contrast-color: #ddd;
   }
   :global(.theme-nord) {
     --bg-panel: #2e3440;
@@ -111,6 +115,7 @@
     --accent: #88c0d0;
     --banner-bg: var(--bg-box);
     --modal-bg: var(--bg-box);
+    ---contrast-color: #ddd;
   }
   :global(.theme-monokai) {
     --bg-panel: #2e2e2e;
@@ -120,6 +125,7 @@
     --accent: #e5b567;
     --banner-bg: var(--bg-box);
     --modal-bg: var(--bg-box);
+    --contrast-color: #ddd;
   }
   :global(.theme-material-light) {
     --bg-panel: #fafafa;
@@ -138,6 +144,7 @@
     --accent: #bb86fc;
     --banner-bg: var(--bg-box);
     --modal-bg: var(--bg-box);
+    --contrast-color: #ddd;
   }
   :global(.theme-flat-sunset) {
     --bg-panel: #2c3e50;
@@ -147,6 +154,7 @@
     --accent: #e67e22;
     --banner-bg: var(--bg-box);
     --modal-bg: var(--bg-box);
+    --contrast-color: #ddd;
   }
   :global(.theme-flat-ocean) {
     --bg-panel: #16a085;
@@ -156,6 +164,7 @@
     --accent: #2980b9;
     --banner-bg: var(--bg-box);
     --modal-bg: var(--bg-box);
+    --contrast-color: #ddd;
   }
   :global(.theme-flat-forest) {
     --bg-panel: #27ae60;
@@ -165,6 +174,7 @@
     --accent: #f39c12;
     --banner-bg: var(--bg-box);
     --modal-bg: var(--bg-box);
+    --contrast-color: #dddddd;
   }
   :global(.theme-autumn) {
     --bg-panel: #ffd200;
@@ -174,6 +184,7 @@
     --accent: #f05133;
     --banner-bg: var(--bg-box);
     --modal-bg: var(--bg-box);
+    --contrast-color: #3f2907;
   }
 
   :global(body) {
