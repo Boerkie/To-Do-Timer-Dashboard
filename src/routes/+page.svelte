@@ -21,8 +21,6 @@
   } from '$lib';
   import { now, getTotalMs, formatMs } from '$lib/timeUtils';
 
-  let boundDate: Date = $selectedDate;
-  $: selectedDate.set(boundDate);
 </script>
 
 <PageBanner />
@@ -31,7 +29,7 @@
   <div class="left-panel">
     <div class="box-title">Recap</div>
     <div class="box recap-box">
-      <DayRecap bind:selectedDate={boundDate} />
+      <DayRecap bind:selectedDate={$selectedDate} />
     </div>
   </div>
 
