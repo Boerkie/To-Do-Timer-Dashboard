@@ -11,6 +11,7 @@ agents:
       - Follow lowerCamelCase for variables and ALLCAPS for constants.
       - Structure files with a leading comment indicating the file name.
       - Where possible, don't mess with CSS z-index. Rather fix structure and styling order.
+	  - Avoid making use of CSS !important if possible. Rather fix structure and styling order.
       - Never modify or create any README*.md files. If READMEs exist, they may be read for context only.
       - Call out any unwanted behavior where new doc files are proposed.
     temperature: 0.2
