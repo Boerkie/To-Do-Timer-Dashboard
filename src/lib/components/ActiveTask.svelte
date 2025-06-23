@@ -117,7 +117,6 @@
     padding: 0;
     border: none;
   }
-
   .action {
     position: absolute;
     top: 0;
@@ -153,9 +152,7 @@
   .visible {
     display: flex;
   }
-
   .current {
-    display: inline-flex;
     position: relative;
   }
 </style>

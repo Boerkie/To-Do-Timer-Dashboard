@@ -3,7 +3,7 @@
   import { createEventDispatcher, tick } from 'svelte';
   import { get } from 'svelte/store';
   import type { TodoTask } from '$lib/types';
-  import { reorderTodo, cyclePriority, tagStyles, PRIORITY_LABELS } from '$lib';
+  import { reorderTodo, cyclePriority, tagStyles, tasks, PRIORITY_LABELS } from '$lib';
   import { clickOutside } from '$lib/actions/clickOutside';
   import { formatMs, getTotalMs, now } from '$lib/timeUtils';
 
@@ -86,8 +86,15 @@
     e.stopPropagation();
     const id = e.dataTransfer?.getData('text/task');
     if (id && id !== task.id) reorderTodo(id, task.id);
-  } : null}
->
+    const tag = e.dataTransfer?.getData('text/tag');
+    if (tag && !task.tags.includes(tag)) {
+      tasks.update((list) => {
+        const t = list.find((x) => x.id === task.id);
+        if (t) t.tags = [...t.tags, tag];
+        return [...list];
+      });
+    }
+  }: null}>
   <div class="row">
     <button
       type="button"
