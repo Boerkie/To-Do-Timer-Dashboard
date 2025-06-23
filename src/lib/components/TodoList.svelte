@@ -6,7 +6,8 @@
     reorderTodo,
     renameTask,
     changeBorder,
-    deleteTask as removeTask
+    deleteTask as removeTask,
+    addTag
   } from '$lib';
   import TodoItem from './TodoItem.svelte';
   import { settings } from '$lib/stores/settings';
@@ -19,10 +20,18 @@
       class:hideNumbers={!$settings.showListNumbers}
       on:dragover|preventDefault
       on:drop={(e: DragEvent) => {
+        const tag = e.dataTransfer?.getData('text/tag');
+        if (tag) {
+          const target = document.elementFromPoint(e.clientX, e.clientY);
+          const li = target?.closest('li.task-row') as HTMLLIElement | null;
+          const taskId = li?.dataset.id;
+          if (taskId) addTag(taskId, tag);
+          return;
+        }
         const draggedId = e.dataTransfer?.getData('text/task');
         if (!draggedId) return;
-        const elem = document.elementFromPoint(e.clientX, e.clientY);
-        const li = elem?.closest('li.task-row') as HTMLLIElement | null;
+        const target = document.elementFromPoint(e.clientX, e.clientY);
+        const li = target?.closest('li.task-row') as HTMLLIElement | null;
         const beforeId = li?.dataset.id ?? null;
         reorderTodo(draggedId, beforeId);
         deactivateTask(draggedId);

@@ -3,13 +3,7 @@
   import { createEventDispatcher, tick } from 'svelte';
   import { get } from 'svelte/store';
   import type { TodoTask } from '$lib/types';
-  import {
-    reorderTodo,
-    tasks as tasksStore,
-    cyclePriority,
-    tagStyles,
-    PRIORITY_LABELS,
-  } from '$lib';
+  import { reorderTodo, cyclePriority, tagStyles, tasks, PRIORITY_LABELS } from '$lib';
   import { clickOutside } from '$lib/actions/clickOutside';
   import { formatMs, getTotalMs, now } from '$lib/timeUtils';
 
@@ -29,6 +23,8 @@
   let showColorPicker = false;
   let draftTitle = task.title;
   let draftBorderColor = task.borderColor || '#000000';
+
+  let dragging = false;
 
   const dispatch = createEventDispatcher();
 
@@ -80,22 +76,25 @@
   bind:this={rowElement}
   {...borderStyleProps}
   draggable="true"
-  on:dragstart={(e: DragEvent) => e.dataTransfer?.setData('text/task', task.id)}
-  on:dragover|preventDefault={() => {}}
-  on:drop={(e: DragEvent) => {
-    if (!interceptDrop) return;
+  on:dragstart={(e: DragEvent) => {
+    dragging = true;
+    e.dataTransfer?.setData('text/task', task.id);
+  }}
+  on:dragend={() => (dragging = false)}
+  on:dragover|preventDefault={interceptDrop ? () => {} : null}
+  on:drop={interceptDrop ? (e: DragEvent) => {
     e.stopPropagation();
     const id = e.dataTransfer?.getData('text/task');
     if (id && id !== task.id) reorderTodo(id, task.id);
     const tag = e.dataTransfer?.getData('text/tag');
     if (tag && !task.tags.includes(tag)) {
-      tasksStore.update((list) => {
+      tasks.update((list) => {
         const t = list.find((x) => x.id === task.id);
         if (t) t.tags = [...t.tags, tag];
         return [...list];
       });
     }
-  }}>
+  }: null}>
   <div class="row">
     <button
       type="button"
