@@ -19,15 +19,19 @@
       class:hideNumbers={!$settings.showListNumbers}
       on:dragover|preventDefault
       on:drop={(e: DragEvent) => {
-        const id = e.dataTransfer?.getData('text/task');
-        const activeId = e.dataTransfer?.getData('text/active');
-        if (id) reorderTodo(id, null);
-        if (activeId) deactivateTask(activeId);
+        const draggedId = e.dataTransfer?.getData('text/task');
+        if (!draggedId) return;
+        const elem = document.elementFromPoint(e.clientX, e.clientY);
+        const li = elem?.closest('li.task-row') as HTMLLIElement | null;
+        const beforeId = li?.dataset.id ?? null;
+        reorderTodo(draggedId, beforeId);
+        deactivateTask(draggedId);
       }}
     >
       {#each tasks as t}
         <TodoItem
           task={t}
+          interceptDrop={false}
           on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
           on:changeBorder={(e) => changeBorder(e.detail.id, e.detail.borderColor)}
           on:delete={(e) => removeTask(e.detail.id)}

@@ -75,6 +75,7 @@
 
 <li
   class="task-row"
+  data-id={task.id}
   class:compact={compact}
   bind:this={rowElement}
   {...borderStyleProps}

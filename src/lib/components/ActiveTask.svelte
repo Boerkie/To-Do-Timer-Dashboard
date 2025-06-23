@@ -21,6 +21,8 @@
   class="active-task"
   class:has-task={task}
   on:dragover|preventDefault
+  on:dragenter={() => (showActions = true)}
+  on:dragleave={() => (showActions = false)}
   on:drop={(e: DragEvent) => {
     const id = e.dataTransfer?.getData('text/task');
     const tag = e.dataTransfer?.getData('text/tag');
@@ -42,9 +44,13 @@
       useThemeBorder={true}
       on:dragstart={(e) => {
         showActions = true;
-        (e as unknown as DragEvent).dataTransfer?.setData('text/active', task.id);
+        console.log('dragstart active', task.id);
+        (e as unknown as DragEvent).dataTransfer?.setData('text/task', task.id);
       }}
-      on:dragend={() => (showActions = false)}
+      on:dragend={() => {
+        console.log('dragend active');
+        showActions = false;
+      }}
       on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
       on:changeBorder={(e) => changeBorder(e.detail.id, e.detail.borderColor)}
       on:delete={(e) => deleteTask(e.detail.id)}

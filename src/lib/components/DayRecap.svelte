@@ -2,7 +2,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { derived } from 'svelte/store';
-  import { tasks } from '$lib/stores/tasks';
+  import { tasks, selectedDate as selectedDateStore } from '$lib/stores/tasks';
   import { settings } from '$lib/stores/settings';
   import { PRIORITY_COLORS } from '$lib/constants';
   import type { TodoTask, ActivePeriod } from '$lib/types';
@@ -14,6 +14,7 @@
 
   // update selected date when the hidden input changes
   function onDateChange() {
+    console.log('onDateChange');
     selectedDate = new Date(dateString);
   }
 
@@ -35,7 +36,7 @@
     updateDayRange();
   });
 
-  $: if (selectedDate.toISOString().slice(0, 10) !== dateString) {
+  $: {
     dateString = selectedDate.toISOString().slice(0, 10);
     updateDayRange();
   }
@@ -46,7 +47,7 @@
 
   const rangeMs = () => dayEndMs - dayStartMs;
 
-  const recapData = derived([tasks, now], ([$tasks, $now]) => {
+  const recapData = derived([tasks, now, selectedDateStore], ([$tasks, $now, _]) => {
     const entries: Array<{
       task: TodoTask;
       periods: Array<{ start: number; end: number }>;
@@ -97,7 +98,7 @@
       type="date"
       bind:this={dateInput}
       bind:value={dateString}
-      on:change={onDateChange}
+      on:input={onDateChange}
       class="offscreen-input"
     />
   </div>
