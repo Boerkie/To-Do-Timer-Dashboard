@@ -22,6 +22,31 @@
   let dayEndMs = 0;
   let currentSettings = { dayStart: '08:00', dayEnd: '18:00' };
 
+  let isDragging = false
+  let dragStartX = 0;
+  let barsContainer: HTMLDivElement;
+
+  function startDrag(event: PointerEvent) {
+    if (event.pointerType !== 'mouse') return; // only allow mouse drag
+    isDragging = true;
+    dragStartX = event.clientX;
+    barsContainer.setPointerCapture(event.pointerId)
+  }
+  function onDrag(event: PointerEvent) {
+    if (!isDragging) return;
+    const deltaX = event.clientX - dragStartX;
+    barsContainer.scrollLeft -= deltaX;
+    dragStartX = event.clientX;
+  }
+  function endDrag(event: PointerEvent) {
+    if (!isDragging) return;
+    isDragging = false;
+    barsContainer.releasePointerCapture(event.pointerId);
+  }
+  function handleWheel(event: WheelEvent) {
+    event.preventDefault();
+    barsContainer.scrollLeft += event.deltaY;
+  }
   // compute day start and end times in milliseconds
   function updateDayRange() {
     const [sh, sm] = currentSettings.dayStart.split(':').map(Number);
@@ -118,7 +143,15 @@
         </div>
       {/each}
     </div>
-    <div class="bars-container">
+    <div
+      class="bars-container"
+      bind:this={barsContainer}
+      on:wheel={handleWheel}
+      on:pointerdown={startDrag}
+      on:pointermove={onDrag}
+      on:pointerup={endDrag}
+      on:pointerleave={endDrag}
+    >
       {#each $recapData as { task, periods }}
         <div class="event-wrap">
           {#each periods as { start, end }}
@@ -197,8 +230,9 @@
     display: flex;
     gap: 0.5rem;
     padding-left: 1rem;
-    overflow-y: visible;
+    overflow-x: visible;
   }
+  ::-webkit-scrollbar { display: none }
   .event-wrap {
     position: relative;
     flex: 0 0 var(--column-width);
