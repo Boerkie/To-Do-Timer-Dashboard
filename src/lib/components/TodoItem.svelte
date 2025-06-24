@@ -161,7 +161,6 @@
 
 <style>
   .task-row {
-    position: relative;
     list-style: none;
     padding: 0.25rem 0.5rem;
     border-radius: 0.35rem;

@@ -47,30 +47,33 @@
 
   const rangeMs = () => dayEndMs - dayStartMs;
 
-  const recapData = derived([tasks, now, selectedDateStore], ([$tasks, $now, _]) => {
-    const entries: Array<{
-      task: TodoTask;
-      periods: Array<{ start: number; end: number }>;
-      first: number;
-    }> = [];
-    $tasks.forEach((task) => {
-      const periods: Array<{ start: number; end: number }> = [];
-      task.activePeriods.forEach((p: ActivePeriod) => {
-        const s = p.start;
-        const e = p.end ?? $now;
-        if (s < dayEndMs && e > dayStartMs) {
-          const start = Math.max(s, dayStartMs);
-          const end = Math.min(e, dayEndMs);
-          if (end > start) periods.push({ start, end });
+  const recapData = derived(
+    [tasks, now, selectedDateStore],
+    ([$tasks, $now, _]) => {
+      const entries: Array<{
+        task: TodoTask;
+        periods: Array<{ start: number; end: number }>;
+        first: number;
+      }> = [];
+      $tasks.forEach((task) => {
+        const periods: Array<{ start: number; end: number }> = [];
+        task.activePeriods.forEach((p: ActivePeriod) => {
+          const s = p.start;
+          const e = p.end ?? $now;
+          if (s < dayEndMs && e > dayStartMs) {
+            const start = Math.max(s, dayStartMs);
+            const end = Math.min(e, dayEndMs);
+            if (end > start) periods.push({ start, end });
+          }
+        });
+        if (periods.length) {
+          const first = Math.min(...periods.map((p) => p.start));
+          entries.push({ task, periods, first });
         }
       });
-      if (periods.length) {
-        const first = Math.min(...periods.map((p) => p.start));
-        entries.push({ task, periods, first });
-      }
-    });
-    return entries.sort((a, b) => a.first - b.first);
-  });
+      return entries.sort((a, b) => a.first - b.first);
+    },
+  );
 
   $: hours = [] as number[];
   $: {
@@ -121,7 +124,11 @@
           {#each periods as { start, end }}
             <div
               class="event-bar"
-              style="--bar-color:{task.borderColor ?? PRIORITY_COLORS[task.priority ?? 4]}; top:{((start - dayStartMs) / rangeMs()) * 100}%; height:{((end - start) / rangeMs()) * 100}%"
+              style="--bar-color:{task.borderColor ??
+                PRIORITY_COLORS[task.priority ?? 4]}; top:{((start -
+                dayStartMs) /
+                rangeMs()) *
+                100}%; height:{((end - start) / rangeMs()) * 100}%"
               title={`${task.title}: ${new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – ${new Date(end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
             >
               <span class="bar-time"
@@ -163,16 +170,19 @@
   }
   .recap-timeline {
     position: relative;
-    height: 90%;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding-bottom: 2.5rem;
     --column-width: 4rem;
   }
   .timeline-wrapper {
+    box-sizing: border-box;
+    flex: 1;
     display: grid;
     grid-template-columns: auto 1fr;
-    height: 96%;
     position: relative;
   }
-
   .hour-line {
     position: absolute;
     left: 0;
@@ -187,7 +197,6 @@
     display: flex;
     gap: 0.5rem;
     padding-left: 1rem;
-    height: 100%;
     overflow-y: visible;
   }
   .event-wrap {
