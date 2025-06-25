@@ -1,3 +1,4 @@
+<!-- PageBanner.svelte -->
 <script lang="ts">
   import { settings } from '$lib/stores/settings';
   import type { Settings } from '$lib/stores/settings';
@@ -21,15 +22,6 @@
     showModal = false;
   }
 
-  // Stub export/import; replace with actual implementations or dispatch events
-  function exportData() {
-    const event = new CustomEvent('export');
-    dispatchEvent(event);
-  }
-  function importData() {
-    const event = new CustomEvent('import');
-    dispatchEvent(event);
-  }
 
   function toggleCleared() {
     showCleared.update((v) => !v);
@@ -50,8 +42,6 @@
   bind:localSettings
   on:save={saveSettings}
   on:cancel={cancel}
-  on:export={exportData}
-  on:import={importData}
   on:toggleCleared={toggleCleared}
 />
 

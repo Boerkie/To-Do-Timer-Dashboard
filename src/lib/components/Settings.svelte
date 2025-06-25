@@ -1,7 +1,7 @@
 <!-- Settings.svelte -->
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { showCleared } from '$lib';
+  import { showCleared, downloadData, loadData } from '$lib';
   import { THEMES } from '$lib/constants';
   import { clickOutside } from '$lib/actions/clickOutside';
   import type { Settings } from '$lib/stores/settings';
@@ -10,6 +10,7 @@
   export let localSettings: Settings;
 
   const dispatch = createEventDispatcher();
+  let fileInput: HTMLInputElement;
 
   function save() {
     dispatch('save');
@@ -18,10 +19,16 @@
     dispatch('cancel');
   }
   function exportData() {
-    dispatch('export');
+    downloadData();
   }
   function importData() {
-    dispatch('import');
+    fileInput.value = '';
+    fileInput.click();
+  }
+  async function handleFile(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    await loadData(input.files[0]);
   }
   function toggleCleared() {
     dispatch('toggleCleared');
@@ -68,6 +75,13 @@
             {$showCleared ? 'Hide Cleared' : 'Show Cleared'}
           </button>
         </div>
+        <input
+          class="hidden-file-input"
+          type="file"
+          accept="application/json"
+          bind:this={fileInput}
+          on:change={handleFile}
+        />
         <div class="modal-actions">
           <button type="submit">Save</button>
           <button type="button" on:click={cancel}>Cancel</button>
@@ -122,5 +136,8 @@
   }
   .modal-actions button {
     margin-left: 0.5rem;
+  }
+  .hidden-file-input {
+    display: none;
   }
 </style>

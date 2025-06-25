@@ -7,3 +7,4 @@ export * from './stores/ui';
 export * from './constants';
 export * from './timeUtils';
 export * from './actions/clickOutside';
+export * from './storage';
