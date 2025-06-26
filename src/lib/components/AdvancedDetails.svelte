@@ -1,7 +1,12 @@
 <!-- AdvancedDetails.svelte -->
 <script lang="ts">
   import type { TodoTask } from '$lib/types';
-  import { tagStyles, tasks as tasksStore, PRIORITY_LABELS, ensureTagStyle } from '$lib';
+  import {
+    tagStyles,
+    tasks as tasksStore,
+    PRIORITY_LABELS,
+    ensureTagStyle,
+  } from '$lib';
   import { get } from 'svelte/store';
   import { createEventDispatcher } from 'svelte';
   import {
@@ -107,7 +112,13 @@
 
 <section class="advanced-details" bind:this={detailsSection}>
   {#if task}
-    <div class="header" on:dblclick={startTitleEdit} role="button" tabindex="0" aria-label="Edit title (double click)">
+    <div
+      class="header"
+      on:dblclick={startTitleEdit}
+      role="button"
+      tabindex="0"
+      aria-label="Edit title (double click)"
+    >
       {#if editingTitle}
         <input
           class="title-input"
@@ -128,8 +139,9 @@
           class="edit-icon"
           aria-label="Edit title"
           on:click={startTitleEdit}
-          on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && startTitleEdit()}
-        >✎</button>
+          on:keydown={(e) =>
+            (e.key === 'Enter' || e.key === ' ') && startTitleEdit()}>✎</button
+        >
       {/if}
     </div>
     <textarea
@@ -190,7 +202,9 @@
           }}
         />
       {:else}
-        <button type="button" class="tag-pill add-tag" on:click={startAddTag}>[+]</button>
+        <button type="button" class="tag-pill add-tag" on:click={startAddTag}
+          >[+]</button
+        >
       {/if}
     </div>
   {:else}
@@ -206,9 +220,7 @@
         <span class="prio p2"></span>
         P2 - High
       </div>
-      <div class="readonly">
-        Created: 2025-06-19 09:00:00
-      </div>
+      <div class="readonly">Created: 2025-06-19 09:00:00</div>
       <div class="tags">
         <span class="tag-pill" style="background:#ffeb3b;color:#333;border-color:#fbc02d" tabindex="-1">work</span>
         <span class="tag-pill" style="background:#90caf9;color:#333;border-color:#1976d2" tabindex="-1">project</span>
@@ -303,5 +315,4 @@
   .p4 {
     background: #888888;
   }
-
 </style>

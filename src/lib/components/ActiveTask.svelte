@@ -70,7 +70,6 @@
       aria-label="Active Task"
       on:dragstart={handleWrapperDragStart}
       on:dragend={handleWrapperDragEnd}
-
     >
       <TodoItem
         {task}

@@ -22,7 +22,7 @@
   let dayEndMs = 0;
   let currentSettings = { dayStart: '08:00', dayEnd: '18:00' };
 
-  let isDragging = false
+  let isDragging = false;
   let dragStartX = 0;
   let barsContainer: HTMLDivElement;
 
@@ -30,7 +30,7 @@
     if (event.pointerType !== 'mouse') return; // only allow mouse drag
     isDragging = true;
     dragStartX = event.clientX;
-    barsContainer.setPointerCapture(event.pointerId)
+    barsContainer.setPointerCapture(event.pointerId);
   }
   function onDrag(event: PointerEvent) {
     if (!isDragging) return;
@@ -232,7 +232,9 @@
     padding-left: 1rem;
     overflow-x: visible;
   }
-  ::-webkit-scrollbar { display: none }
+  ::-webkit-scrollbar {
+    display: none;
+  }
   .event-wrap {
     position: relative;
     flex: 0 0 var(--column-width);

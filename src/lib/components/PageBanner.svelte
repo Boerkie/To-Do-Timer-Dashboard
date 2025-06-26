@@ -22,7 +22,6 @@
     showModal = false;
   }
 
-
   function toggleCleared() {
     showCleared.update((v) => !v);
   }
@@ -33,7 +32,9 @@
 <header class="page-banner">
   <h1>⏳ {$settings.userName}'s TODO Timer Dashboard</h1>
   <div class="actions">
-    <button on:click={() => (showModal = true)} title="Settings">⚙️ Settings</button>
+    <button on:click={() => (showModal = true)} title="Settings"
+      >⚙️ Settings</button
+    >
   </div>
 </header>
 

@@ -9,7 +9,11 @@
     {#each tasks as t}
       <li>
         <span>{t.title}</span>
-        <button type="button" class="delete-btn" on:click={() => clearTask(t.id)}>
+        <button
+          type="button"
+          class="delete-btn"
+          on:click={() => clearTask(t.id)}
+        >
           🗑️
         </button>
       </li>
