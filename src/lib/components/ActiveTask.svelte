@@ -17,8 +17,8 @@
 
   let showActions = false;
 
-  function handleWrapperDragStart(e: DragEvent) {
-    if (task) e.dataTransfer?.setData('text/task', task.id);
+  function handleWrapperDragStart(event: DragEvent) {
+    if (task) event.dataTransfer?.setData('text/task', task.id);
     showActions = true;
   }
 
@@ -58,6 +58,7 @@
 <section
   class="active-task"
   class:has-task={task}
+  aria-label="Active Task Section"
   on:dragover|preventDefault={() => (showActions = true)}
   on:drop={sectionDrop}
 >
@@ -65,6 +66,8 @@
     <div
       class="current"
       draggable="true"
+      role="listitem"
+      aria-label="Active Task"
       on:dragstart={handleWrapperDragStart}
       on:dragend={handleWrapperDragEnd}
       on:dragover|preventDefault={() => (showActions = true)}
@@ -82,6 +85,9 @@
       <div
         class="action drop-left"
         class:visible={showActions}
+        role="button"
+        tabindex="0"
+        aria-label="Move Task Back"
         on:dragover|preventDefault
         on:drop={dropMoveBack}
       >
@@ -90,6 +96,9 @@
       <div
         class="action drop-right"
         class:visible={showActions}
+        role="button"
+        tabindex="0"
+        aria-label="Clear Task"
         on:dragover|preventDefault
         on:drop={dropClear}
       >
