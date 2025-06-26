@@ -1,8 +1,10 @@
-import { writable, derived } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { TodoTask } from '$lib/types';
 import { ensureTagStyle } from './tagStyles';
 import { tagFilter, tagFilterAnd, priorityFilter } from './ui';
+import { settings } from './settings';
+import { dayEndBoundary } from '$lib/timeUtils';
 
 /** Parse an input string and extract tags prefixed with '#'.
  * Returns the cleaned title and array of tags.
@@ -261,3 +263,10 @@ export const tags = derived(tasks, ($tasks) => {
 });
 
 export const selectedDate = writable(new Date());
+
+dayEndBoundary.subscribe(() => {
+  if (get(settings).reorderAtDayEnd) {
+    const active = get(activeTask);
+    if (active) moveToTop(active.id);
+  }
+});

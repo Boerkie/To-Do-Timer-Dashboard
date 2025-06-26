@@ -11,7 +11,7 @@
   import { createEventDispatcher } from 'svelte';
   import {
     now,
-    getTotalMs,
+    getTotalActiveMs,
     formatMs,
     getLastDaysTotals,
     dayBoundary,
@@ -29,7 +29,7 @@
   const MAX_TAG_LENGTH = 20;
   let draftDetails = '';
 
-  $: totalMs = task ? getTotalMs(task.activePeriods, $now) : 0;
+  $: totalMs = task ? getTotalActiveMs(task.activePeriods, $now) : 0;
   $: displayTime = formatMs(totalMs);
 
   // raw totals for the last N days (excluding today)

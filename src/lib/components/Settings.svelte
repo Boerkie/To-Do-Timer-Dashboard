@@ -78,6 +78,10 @@
           Show List Numbers:
           <input type="checkbox" bind:checked={localSettings.showListNumbers} />
         </label>
+        <label>
+          Move Active Task on Day End:
+          <input type="checkbox" bind:checked={localSettings.reorderAtDayEnd} />
+        </label>
         <div class="form-buttons">
           <button type="button" on:click={exportData}>Export</button>
           <button type="button" on:click={importData}>Import</button>

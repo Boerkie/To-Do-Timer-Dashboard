@@ -19,7 +19,7 @@
     renameTask,
     addTag,
   } from '$lib';
-  import { now, getTotalMs, formatMs } from '$lib/timeUtils';
+  import { now } from '$lib/timeUtils';
 
 </script>
 
