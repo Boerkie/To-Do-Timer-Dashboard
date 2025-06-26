@@ -59,7 +59,7 @@
   class="active-task"
   class:has-task={task}
   aria-label="Active Task Section"
-  on:dragover|preventDefault={() => (showActions = true)}
+  on:dragover|preventDefault
   on:drop={sectionDrop}
 >
   {#if task}
@@ -70,7 +70,7 @@
       aria-label="Active Task"
       on:dragstart={handleWrapperDragStart}
       on:dragend={handleWrapperDragEnd}
-      on:dragover|preventDefault={() => (showActions = true)}
+
     >
       <TodoItem
         {task}
