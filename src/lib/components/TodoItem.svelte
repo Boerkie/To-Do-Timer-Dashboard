@@ -109,7 +109,13 @@
         bind:this={titleElement}
         bind:value={draftTitle}
         on:blur={commitRename}
-        on:keydown={(e) => e.key === 'Enter' && commitRename()}
+        on:keydown={(e) => {
+          if (e.key === 'Enter') commitRename();
+          if (e.key === 'Escape') {
+            editingTitle = false;
+            draftTitle = task.title;
+          }
+        }}
       />
     {:else}
       <span
@@ -156,10 +162,18 @@
           bind:value={draftBorderColor}
           on:change={applyBorder}
           on:blur={() => (menuOpen = false)}
+          on:keydown={(e) => {
+            if (e.key === 'Escape') {
+              showColorPicker = false;
+              menuOpen = false;
+              draftBorderColor = task.borderColor || '#000000';
+            }
+          }}
         />
       {:else}
         <button type="button" on:click={startRename}>Rename</button>
         <button type="button" on:click={openColorPicker}>Change border</button>
+        <button type="button" on:click={() => dispatch('resetBorder', { id: task.id })}>Reset border</button>
         <div class="separator"></div>
         <button type="button" on:click={deleteTask}>Delete</button>
       {/if}
