@@ -112,7 +112,15 @@
         on:keydown={(e) => e.key === 'Enter' && commitRename()}
       />
     {:else}
-      <span class="title" bind:this={titleElement} on:dblclick={startRename}>{task.title}</span>
+      <span
+        class="title"
+        bind:this={titleElement}
+        role="button"
+        tabindex="0"
+        aria-label="Rename task"
+        on:dblclick={startRename}
+        on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && startRename()}
+      >{task.title}</span>
     {/if}
     <button
       type="button"
@@ -208,6 +216,7 @@
     font: inherit;
     background: transparent;
     border: none;
+    color: var(--contrast-color);
   }
   .tags {
     display: flex;
