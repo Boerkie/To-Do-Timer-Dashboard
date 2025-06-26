@@ -82,7 +82,10 @@
   {/if}
 
   {#if editTag}
-    <table class="edit-dialog">
+    <table
+      class="edit-dialog"
+      on:keydown={(e) => e.key === 'Escape' && (editTag = null)}
+    >
       <tbody>
         <tr>
           <td colspan="2"><input type="text" bind:value={newName} /></td>

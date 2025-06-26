@@ -22,6 +22,7 @@
   let addingTag = false;
   let newTag = '';
   const MAX_TAG_LENGTH = 20;
+  let draftDetails = '';
 
   $: totalMs = task ? getTotalMs(task.activePeriods, $now) : 0;
   $: displayTime = formatMs(totalMs);
@@ -112,7 +113,13 @@
           class="title-input"
           bind:value={draftTitle}
           on:blur={commitTitle}
-          on:keydown={(e) => e.key === 'Enter' && commitTitle()}
+          on:keydown={(e) => {
+            if (e.key === 'Enter') commitTitle();
+            if (e.key === 'Escape') {
+              editingTitle = false;
+              draftTitle = task.title;
+            }
+          }}
         />
       {:else}
         <h3>{task.title}</h3>
@@ -125,7 +132,17 @@
         >✎</button>
       {/if}
     </div>
-    <textarea placeholder="Task details" bind:value={task.details}></textarea>
+    <textarea
+      placeholder="Task details"
+      bind:value={task.details}
+      on:focus={() => (draftDetails = task.details ?? '')}
+      on:keydown={(e) => {
+        if (e.key === 'Escape') {
+          task.details = draftDetails;
+          (e.target as HTMLTextAreaElement).blur();
+        }
+      }}
+    ></textarea>
     <div class="readonly">Today: {displayTime}</div>
     {#each lastDaysTotals as { date, duration }}
       <div class="readonly">
@@ -163,7 +180,13 @@
           class="tag-pill tag-input"
           bind:value={newTag}
           on:blur={commitTag}
-          on:keydown={(e) => e.key === 'Enter' && commitTag()}
+          on:keydown={(e) => {
+            if (e.key === 'Enter') commitTag();
+            if (e.key === 'Escape') {
+              addingTag = false;
+              newTag = '';
+            }
+          }}
         />
       {:else}
         <button type="button" class="tag-pill add-tag" on:click={startAddTag}>[+]</button>
