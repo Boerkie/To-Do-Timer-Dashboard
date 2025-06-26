@@ -21,6 +21,7 @@ export interface Settings {
   | 'theme-autumn';
   tagBorderWidth: number;
   showListNumbers: boolean;
+  reorderAtDayEnd: boolean;
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -29,7 +30,8 @@ const DEFAULT_SETTINGS: Settings = {
   dayEnd: '18:00',
   theme: 'dark',
   tagBorderWidth: 2,
-  showListNumbers: true
+  showListNumbers: true,
+  reorderAtDayEnd: false
 };
 
 function createSettings() {

@@ -31,6 +31,31 @@ export const now = readable(Date.now(), (set) => {
   return () => clearInterval(iv);
 });
 
+// Emits whenever the configured day end time is reached
+export const dayEndBoundary = readable(Date.now(), (set) => {
+  let timer: ReturnType<typeof setTimeout>;
+  function schedule() {
+    clearTimeout(timer);
+    const { dayEnd } = get(settings);
+    const [h, m] = dayEnd.split(':').map(Number);
+    const now = new Date();
+    const next = new Date(now);
+    next.setHours(h, m, 0, 0);
+    if (next.getTime() <= now.getTime()) next.setDate(next.getDate() + 1);
+    const ms = next.getTime() - now.getTime();
+    timer = setTimeout(() => {
+      set(Date.now());
+      schedule();
+    }, ms);
+  }
+  schedule();
+  const unsubscribe = settings.subscribe(schedule);
+  return () => {
+    clearTimeout(timer);
+    unsubscribe();
+  };
+});
+
 function getDayBounds(ts: number) {
   const { dayStart, dayEnd } = get(settings);
   const [startHour, startMinute] = dayStart.split(':').map(Number);
@@ -50,6 +75,16 @@ export function getTotalMs(
     const s = Math.max(p.start, dayStart);
     const e = Math.min(p.end ?? nowTs, dayEnd);
     return sum + Math.max(0, e - s);
+  }, 0);
+}
+
+export function getTotalActiveMs(
+  periods: Array<{ start: number; end?: number | null }>,
+  nowTs: number
+): number {
+  return periods.reduce((sum, p) => {
+    const end = p.end ?? nowTs;
+    return sum + Math.max(0, end - p.start);
   }, 0);
 }
 
