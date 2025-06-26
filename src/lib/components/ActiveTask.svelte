@@ -9,7 +9,7 @@
     tasks as tasksStore,
     renameTask,
     changeBorder,
-    deleteTask
+    deleteTask,
   } from '$lib';
   import TodoItem from './TodoItem.svelte';
   export let task: TodoTask | null = null;
@@ -57,9 +57,7 @@
 <section
   class="active-task"
   class:has-task={task}
-  on:dragover|preventDefault
-  on:dragenter={() => (showActions = true)}
-  on:dragleave={() => (showActions = false)}
+  on:dragover|preventDefault={() => (showActions = true)}
   on:drop={sectionDrop}
 >
   {#if task}
@@ -68,11 +66,10 @@
       draggable="true"
       on:dragstart={handleWrapperDragStart}
       on:dragend={handleWrapperDragEnd}
-      on:dragenter={() => (showActions = true)}
-      on:dragleave={() => (showActions = false)}
+      on:dragover|preventDefault={() => (showActions = true)}
     >
       <TodoItem
-        task={task}
+        {task}
         interceptDrop={false}
         compact={true}
         useThemeBorder={true}
