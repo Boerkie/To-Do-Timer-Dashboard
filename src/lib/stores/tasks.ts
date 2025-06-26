@@ -188,6 +188,17 @@ export function changeBorder(id: string, borderColor: string) {
   });
 }
 
+export function resetBorder(id: string) {
+  tasks.update((list) => {
+    const task = list.find((t) => t.id === id);
+    if (task) {
+      delete task.borderColor;
+      task.updatedAt = Date.now();
+    }
+    return [...list];
+  });
+}
+
 export function addTag(id: string, tagName: string) {
   if (!tagName.match(/^[A-Za-z0-9_-]+$/) || tagName.length > 20) return;
   tasks.update((list) => {

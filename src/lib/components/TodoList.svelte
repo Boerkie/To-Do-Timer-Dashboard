@@ -6,6 +6,7 @@
     reorderTodo,
     renameTask,
     changeBorder,
+    resetBorder,
     deleteTask as removeTask,
     addTag
   } from '$lib';
@@ -43,6 +44,7 @@
           interceptDrop={false}
           on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
           on:changeBorder={(e) => changeBorder(e.detail.id, e.detail.borderColor)}
+          on:resetBorder={(e) => resetBorder(e.detail.id)}
           on:delete={(e) => removeTask(e.detail.id)}
         />
       {/each}

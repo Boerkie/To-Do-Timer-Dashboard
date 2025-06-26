@@ -9,6 +9,7 @@
     tasks as tasksStore,
     renameTask,
     changeBorder,
+    resetBorder,
     deleteTask,
   } from '$lib';
   import TodoItem from './TodoItem.svelte';
@@ -75,6 +76,7 @@
         useThemeBorder={true}
         on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
         on:changeBorder={(e) => changeBorder(e.detail.id, e.detail.borderColor)}
+        on:resetBorder={(e) => resetBorder(e.detail.id)}
         on:delete={(e) => deleteTask(e.detail.id)}
       />
       <div
