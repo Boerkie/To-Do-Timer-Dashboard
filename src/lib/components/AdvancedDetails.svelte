@@ -143,6 +143,7 @@
         }
       }}
     ></textarea>
+    <div class="readonly">Recent Time spend</div>
     <div class="readonly">Today: {displayTime}</div>
     {#each lastDaysTotals as { date, duration }}
       <div class="readonly">
@@ -193,11 +194,12 @@
       {/if}
     </div>
   {:else}
-    <div class="placeholder">
+    <div class="advanced-details">
       <div class="header">
         <h3>Example Task</h3>
       </div>
-      <textarea placeholder="Task details" disabled readonly>Example details about this task. You can add notes here.</textarea>
+      <textarea placeholder="Task details" disabled readonly>Drag a task from the TO DO list to the Active box to see it's advanced details here.</textarea>
+      <div class="readonly">Recent Time spend</div>
       <div class="readonly">Today: 01:23:45</div>
       <div class="readonly">Yesterday: 02:34:56</div>
       <div class="readonly priority-display">
@@ -219,7 +221,7 @@
   .advanced-details {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.2rem;
   }
   .header {
     position: relative;
