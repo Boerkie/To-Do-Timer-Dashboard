@@ -36,8 +36,14 @@
 </script>
 
 {#if visible}
-  <div class="modal-overlay" on:click={cancel} use:clickOutside={() => dispatch('cancel')}>
-    <div class="modal" on:click|stopPropagation>
+  <div
+    class="modal-overlay"
+    role="presentation"
+    on:click={cancel}
+    on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') cancel(); }}
+    use:clickOutside={() => dispatch('cancel')}
+  >
+    <div class="modal" role="dialog" aria-modal="true" tabindex="0" on:click|stopPropagation on:keydown|stopPropagation>
       <h2>Settings</h2>
       <form on:submit|preventDefault={save} class="settings-form">
         <label>
@@ -62,7 +68,11 @@
         </label>
         <label>
           Tag Border Width:
-          <input type="number" min="0" bind:value={localSettings.tagBorderWidth} />
+          <input
+            type="number"
+            min="0"
+            bind:value={localSettings.tagBorderWidth}
+          />
         </label>
         <label>
           Show List Numbers:
