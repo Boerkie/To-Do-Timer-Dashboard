@@ -54,7 +54,6 @@
 
 <style>
   .todo-list {
-    /* container with flexible layout */
     display: flex;
     flex-direction: column;
     height: 100%;
