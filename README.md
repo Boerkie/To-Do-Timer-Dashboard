@@ -1,3 +1,5 @@
+P1: Rework / fork this project to be a Signal vs Noise list as per https://youtu.be/mpAZehPviLQ?si=zqcjmEv1v9FevaP2&t=550
+
 # sv
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
