@@ -5,7 +5,7 @@
   import type { TodoTask } from '$lib/types';
   import { reorderTodo, cyclePriority, tagStyles, tasks, PRIORITY_LABELS } from '$lib';
   import { clickOutside } from '$lib/actions/clickOutside';
-  import { formatMs, getTotalMs, now } from '$lib/timeUtils';
+  import { formatMs, getTotalActiveMs, now } from '$lib/timeUtils';
 
   export let task: TodoTask;
   export let interceptDrop = true;
@@ -137,7 +137,7 @@
     >
       ⋮
     </button>
-    <span class="time">{formatMs(getTotalMs(task.activePeriods, $now))}</span>
+    <span class="time">{formatMs(getTotalActiveMs(task.activePeriods, $now))}</span>
   </div>
   <div class="tags">
     {#each [...task.tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })) as tag}

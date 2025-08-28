@@ -31,6 +31,24 @@ export const now = readable(Date.now(), (set) => {
   return () => clearInterval(iv);
 });
 
+export const dayEndBoundary = readable(Date.now(), (set) => {
+  function scheduleNext() {
+    const { dayEnd } = get(settings);
+    const [endHour, endMinute] = dayEnd.split(':').map(Number);
+    const current = new Date();
+    const next = new Date(current);
+    next.setHours(endHour, endMinute, 0, 0);
+    if (next.getTime() <= current.getTime()) next.setDate(next.getDate() + 1);
+    const msUntil = next.getTime() - current.getTime();
+    const timer = setTimeout(() => {
+      set(Date.now());
+      scheduleNext();
+    }, msUntil);
+    return () => clearTimeout(timer);
+  }
+  return scheduleNext();
+});
+
 function getDayBounds(ts: number) {
   const { dayStart, dayEnd } = get(settings);
   const [startHour, startMinute] = dayStart.split(':').map(Number);
@@ -51,6 +69,16 @@ export function getTotalMs(
     const e = Math.min(p.end ?? nowTs, dayEnd);
     return sum + Math.max(0, e - s);
   }, 0);
+}
+
+export function getTotalActiveMs(
+  periods: Array<{ start: number; end?: number | null }>,
+  nowTs: number,
+): number {
+  return periods.reduce(
+    (sum, p) => sum + Math.max(0, (p.end ?? nowTs) - p.start),
+    0,
+  );
 }
 
 export function formatMs(ms: number): string {

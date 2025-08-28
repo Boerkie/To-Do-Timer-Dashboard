@@ -1,9 +1,13 @@
 <!-- +layout.svelte -->
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { get } from 'svelte/store';
   import { settings } from '$lib/stores/settings';
+  import { activeTask, moveToTop, deactivateTask } from '$lib';
+  import { dayEndBoundary } from '$lib/timeUtils';
 
   let unsubscribe: () => void;
+  let unsubscribeDayEnd: () => void;
 
   onMount(() => {
     const banner = document.querySelector('.page-banner') as HTMLElement;
@@ -40,10 +44,21 @@
         `${tagBorderWidth}px`,
       );
     });
+
+    unsubscribeDayEnd = dayEndBoundary.subscribe(() => {
+      if (get(settings).autoMoveAtDayEnd) {
+        const current = get(activeTask);
+        if (current) {
+          moveToTop(current.id);
+          deactivateTask(current.id);
+        }
+      }
+    });
   });
 
   onDestroy(() => {
     unsubscribe && unsubscribe();
+    unsubscribeDayEnd && unsubscribeDayEnd();
   });
 </script>
 
