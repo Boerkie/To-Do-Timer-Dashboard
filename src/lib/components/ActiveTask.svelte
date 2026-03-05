@@ -11,9 +11,12 @@
     changeBorder,
     resetBorder,
     deleteTask,
+    PRIORITY_COLORS,
   } from '$lib';
   import TodoItem from './TodoItem.svelte';
   export let task: TodoTask | null = null;
+
+  $: frameColor = task ? (task.borderColor ?? PRIORITY_COLORS[task.priority ?? 4]) : '';
 
   let showActions = false;
 
@@ -58,6 +61,7 @@
 <section
   class="active-task"
   class:has-task={task}
+  style={task ? `background:${frameColor}` : ''}
   aria-label="Active Task Section"
   on:dragover|preventDefault
   on:drop={sectionDrop}
@@ -121,7 +125,7 @@
     border-radius: 0.25rem;
   }
   .has-task {
-    padding: 0;
+    padding: 0.5rem;
     border: none;
   }
   .action {

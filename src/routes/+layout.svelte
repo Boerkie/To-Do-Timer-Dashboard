@@ -115,7 +115,7 @@
     --accent: #88c0d0;
     --banner-bg: var(--bg-box);
     --modal-bg: var(--bg-box);
-    ---contrast-color: #ddd;
+    --contrast-color: #ddd;
   }
   :global(.theme-monokai) {
     --bg-panel: #2e2e2e;

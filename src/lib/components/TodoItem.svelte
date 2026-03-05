@@ -3,7 +3,7 @@
   import { createEventDispatcher, tick } from 'svelte';
   import { get } from 'svelte/store';
   import type { TodoTask } from '$lib/types';
-  import { reorderTodo, cyclePriority, tagStyles, tasks, PRIORITY_LABELS } from '$lib';
+  import { reorderTodo, cyclePriority, tagStyles, tasks, PRIORITY_LABELS, PRIORITY_COLORS } from '$lib';
   import { clickOutside } from '$lib/actions/clickOutside';
   import { formatMs, getTotalMs, now } from '$lib/timeUtils';
 
@@ -63,8 +63,8 @@
     dispatch('delete', { id: task.id });
   }
 
-  $: borderStyleProps = task.borderColor && !useThemeBorder
-    ? { style: `--task-border: ${task.borderColor}` }
+  $: borderStyleProps = !useThemeBorder
+    ? { style: `--task-border: ${task.borderColor ?? PRIORITY_COLORS[task.priority ?? 4]}` }
     : {};
 
 </script>
@@ -143,7 +143,7 @@
     {#each [...task.tags].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })) as tag}
       <span
         class="tag-pill"
-        style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]?.fg};border-color:{get(tagStyles)[tag]?.border}"
+        style="background:{$tagStyles[tag]?.bg};color:{$tagStyles[tag]?.fg};border-color:{$tagStyles[tag]?.border}"
       >{tag}</span>
     {/each}
   </div>
@@ -185,7 +185,6 @@
 
 <style>
   .task-row {
-    list-style: none;
     padding: 0.25rem 0.5rem;
     border-radius: 0.35rem;
     margin: 0 0 0.25rem 0;

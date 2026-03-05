@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TodoTask } from '$lib/types';
-  import { clearTask } from '$lib';
+  import { deleteTask } from '$lib';
   export let tasks: TodoTask[] = [];
 </script>
 
@@ -12,7 +12,7 @@
         <button
           type="button"
           class="delete-btn"
-          on:click={() => clearTask(t.id)}
+          on:click={() => deleteTask(t.id)}
         >
           🗑️
         </button>

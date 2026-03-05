@@ -55,8 +55,7 @@
       <button
         type="button"
         class="tag-pill {selected.includes(tag) ? 'selected' : ''}"
-        style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]
-          ?.fg};border-color:{get(tagStyles)[tag]?.border}"
+        style="background:{$tagStyles[tag]?.bg};color:{$tagStyles[tag]?.fg};border-color:{$tagStyles[tag]?.border}"
         draggable="true"
         aria-pressed={selected.includes(tag)}
         aria-label="Tag: {tag}"

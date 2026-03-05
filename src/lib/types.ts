@@ -11,7 +11,6 @@ export interface TodoTask {
   priority?: number; // Optional priority (lower is higher priority)
   borderColor?: string; // Optional border color for UI
   activePeriods: ActivePeriod[];
-  totalTimeToday: number; // Milliseconds total active time for current day
   createdAt: number; // Creation timestamp
   updatedAt: number; // Last updated timestamp
   isDone: boolean; // Completed/cleared status

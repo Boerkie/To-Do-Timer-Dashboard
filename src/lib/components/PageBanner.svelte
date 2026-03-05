@@ -5,8 +5,10 @@
   import { showCleared } from '$lib';
   import { onDestroy } from 'svelte';
   import SettingsModal from './Settings.svelte';
+  import HelpModal from './Help.svelte';
 
   let showModal = false;
+  let showHelp = false;
   let localSettings: Settings;
 
   const unsubscribe = settings.subscribe((value) => {
@@ -32,9 +34,8 @@
 <header class="page-banner">
   <h1>⏳ {$settings.userName}'s TODO Timer Dashboard</h1>
   <div class="actions">
-    <button on:click={() => (showModal = true)} title="Settings"
-      >⚙️ Settings</button
-    >
+    <button on:click={() => (showHelp = true)} title="Help">❓ Help</button>
+    <button on:click={() => (showModal = true)} title="Settings">⚙️ Settings</button>
   </div>
 </header>
 
@@ -45,6 +46,7 @@
   on:cancel={cancel}
   on:toggleCleared={toggleCleared}
 />
+<HelpModal visible={showHelp} on:close={() => (showHelp = false)} />
 
 <style>
   .page-banner {

@@ -18,7 +18,7 @@
 <section class="todo-list">
   <div class="list-area">
     <ol
-      class:hideNumbers={!$settings.showListNumbers}
+      class:showNumbers={$settings.showListNumbers}
       on:dragover|preventDefault
       on:drop={(e: DragEvent) => {
         const tag = e.dataTransfer?.getData('text/tag');
@@ -64,14 +64,13 @@
   }
 
   ol {
-    list-style-position: outside;
-    margin-block-start: 0em;
-    margin-block-end: 0em;
-    padding-left: 2rem;
-  }
-
-  .hideNumbers {
     list-style: none;
+    margin-block-start: 0;
+    margin-block-end: 0;
     padding-left: 0;
+  }
+  ol.showNumbers {
+    list-style: decimal;
+    padding-left: 1.75rem;
   }
 </style>

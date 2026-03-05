@@ -22,6 +22,8 @@ export interface Settings {
   tagBorderWidth: number;
   showListNumbers: boolean;
   reorderAtDayEnd: boolean;
+  defaultPriority: number;
+  timeFormat: '12h' | '24h';
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -31,7 +33,9 @@ const DEFAULT_SETTINGS: Settings = {
   theme: 'dark',
   tagBorderWidth: 2,
   showListNumbers: true,
-  reorderAtDayEnd: false
+  reorderAtDayEnd: false,
+  defaultPriority: 3,
+  timeFormat: '24h'
 };
 
 function createSettings() {

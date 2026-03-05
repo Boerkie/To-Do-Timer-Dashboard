@@ -1,6 +1,6 @@
 <!-- DayRecap.svelte -->
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { derived } from 'svelte/store';
   import { tasks, selectedDate as selectedDateStore } from '$lib/stores/tasks';
   import { settings } from '$lib/stores/settings';
@@ -14,13 +14,14 @@
 
   // update selected date when the hidden input changes
   function onDateChange() {
-    console.log('onDateChange');
     selectedDate = new Date(dateString);
   }
 
   let dayStartMs = 0;
   let dayEndMs = 0;
   let currentSettings = { dayStart: '08:00', dayEnd: '18:00' };
+
+  let timeFormat: '12h' | '24h' = '24h';
 
   let isDragging = false;
   let dragStartX = 0;
@@ -56,8 +57,9 @@
     dayEndMs = new Date(base).setHours(eh, em, 0, 0);
   }
 
-  const unsubscribe = settings.subscribe(({ dayStart, dayEnd }) => {
+  const unsubscribe = settings.subscribe(({ dayStart, dayEnd, timeFormat: tf }) => {
     currentSettings = { dayStart, dayEnd };
+    timeFormat = tf;
     updateDayRange();
   });
 
@@ -69,6 +71,8 @@
   onMount(() => {
     updateDayRange();
   });
+
+  onDestroy(unsubscribe);
 
   const rangeMs = () => dayEndMs - dayStartMs;
 
@@ -139,7 +143,7 @@
           class="hour-line"
           style:top={((h - dayStartMs) / rangeMs()) * 100 + '%'}
         >
-          {new Date(h).toLocaleTimeString([], { hour: '2-digit' })}
+          {new Date(h).toLocaleTimeString([], { hour: '2-digit', hour12: timeFormat === '12h' })}
         </div>
       {/each}
     </div>
@@ -162,21 +166,23 @@
                 dayStartMs) /
                 rangeMs()) *
                 100}%; height:{((end - start) / rangeMs()) * 100}%"
-              title={`${task.title}: ${new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – ${new Date(end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+              title={`${task.title}: ${new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: timeFormat === '12h' })} – ${new Date(end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: timeFormat === '12h' })}`}
             >
               <span class="bar-time"
                 >{new Date(start).toLocaleTimeString([], {
                   hour: '2-digit',
                   minute: '2-digit',
+                  hour12: timeFormat === '12h',
                 })} – {new Date(end).toLocaleTimeString([], {
                   hour: '2-digit',
                   minute: '2-digit',
+                  hour12: timeFormat === '12h',
                 })}</span
               >
             </div>
           {/each}
           <div class="bar-label">
-            <span class="prio p{task.priority ?? 4}"></span>
+            <span class="prio" style="background:{PRIORITY_COLORS[task.priority ?? 4]}"></span>
             <span class="label-text">{task.title}</span>
           </div>
         </div>
@@ -286,18 +292,6 @@
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 0.1rem;
-  }
-  .p1 {
-    background: #ff5555;
-  }
-  .p2 {
-    background: #ff9900;
-  }
-  .p3 {
-    background: #22aa22;
-  }
-  .p4 {
-    background: #888888;
   }
 
   .date-picker {

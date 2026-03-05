@@ -82,6 +82,22 @@
           Move Active Task on Day End:
           <input type="checkbox" bind:checked={localSettings.reorderAtDayEnd} />
         </label>
+        <label>
+          Default Priority:
+          <select bind:value={localSettings.defaultPriority}>
+            <option value={1}>P1 – Urgent</option>
+            <option value={2}>P2 – High</option>
+            <option value={3}>P3 – Normal</option>
+            <option value={4}>P4 – Low</option>
+          </select>
+        </label>
+        <label>
+          Time Format:
+          <select bind:value={localSettings.timeFormat}>
+            <option value="24h">24h (13:00)</option>
+            <option value="12h">12h (1:00 PM)</option>
+          </select>
+        </label>
         <div class="form-buttons">
           <button type="button" on:click={exportData}>Export</button>
           <button type="button" on:click={importData}>Import</button>

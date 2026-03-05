@@ -6,9 +6,10 @@
     tasks as tasksStore,
     PRIORITY_LABELS,
     ensureTagStyle,
+    toCamelTag,
   } from '$lib';
   import { get } from 'svelte/store';
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, tick } from 'svelte';
   import {
     now,
     getTotalActiveMs,
@@ -26,6 +27,7 @@
   let draftTitle = '';
   let addingTag = false;
   let newTag = '';
+  let tagInputEl: HTMLInputElement;
   const MAX_TAG_LENGTH = 20;
   let draftDetails = '';
 
@@ -85,9 +87,22 @@
     dispatch('rename', { id: task.id, newName: draftTitle });
   }
 
-  function startAddTag() {
+  async function startAddTag() {
     addingTag = true;
     newTag = '';
+    await tick();
+    tagInputEl?.focus();
+  }
+
+  function dropTag(e: DragEvent) {
+    const tag = e.dataTransfer?.getData('text/tag');
+    if (!tag || !task || task.tags.includes(tag)) return;
+    ensureTagStyle(tag);
+    tasksStore.update((list) => {
+      const t = list.find((x) => x.id === task!.id);
+      if (t) t.tags = [...t.tags, tag];
+      return [...list];
+    });
   }
 
   function commitTag() {
@@ -95,7 +110,7 @@
       addingTag = false;
       return;
     }
-    const tagName = newTag.trim();
+    const tagName = toCamelTag(newTag);
     const valid = /^[A-Za-z0-9_-]+$/.test(tagName);
     if (
       tagName &&
@@ -110,7 +125,10 @@
   }
 </script>
 
-<section class="advanced-details" bind:this={detailsSection}>
+<section class="advanced-details" bind:this={detailsSection}
+  on:dragover|preventDefault={() => {}}
+  on:drop={dropTag}
+>
   {#if task}
     <div
       class="header"
@@ -184,14 +202,16 @@
               removeTag(tag);
             }
           }}
-          style="background:{get(tagStyles)[tag]?.bg};color:{get(tagStyles)[tag]
-            ?.fg};border-color:{get(tagStyles)[tag]?.border}">{tag}</span
+          style="background:{$tagStyles[tag]?.bg};color:{$tagStyles[tag]?.fg};border-color:{$tagStyles[tag]?.border}">{tag}</span
         >
       {/each}
       {#if addingTag}
         <input
           class="tag-pill tag-input"
+          bind:this={tagInputEl}
           bind:value={newTag}
+          placeholder="tag name…"
+          maxlength={20}
           on:blur={commitTag}
           on:keydown={(e) => {
             if (e.key === 'Enter') commitTag();
@@ -285,10 +305,12 @@
     cursor: pointer;
   }
   .tag-input {
-    margin-left: auto;
     font: inherit;
-    border: none;
-    background: transparent;
+    color: var(--text-color);
+    background: var(--bg-panel);
+    border: var(--tag-border-width, 2px) solid var(--accent);
+    outline: none;
+    width: 8rem;
   }
   .readonly {
     font-size: 0.8rem;
