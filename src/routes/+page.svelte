@@ -18,6 +18,8 @@
     showCleared,
     renameTask,
     addTag,
+    PRIORITY_COLORS,
+    borderPreviewColor,
   } from '$lib';
   import { now } from '$lib/timeUtils';
 
@@ -38,7 +40,7 @@
     <div class="box-title">Active</div>
     <div
       class="box active-box"
-      style="--active-bg:{$activeTask?.borderColor || 'var(--border)'}"
+      style="--active-bg:{$activeTask ? (($borderPreviewColor?.id === $activeTask.id ? $borderPreviewColor?.color : null) ?? $activeTask.borderColor ?? PRIORITY_COLORS[$activeTask.priority ?? 4]) : 'var(--border)'}"
     >
       <ActiveTask task={$activeTask} />
     </div>

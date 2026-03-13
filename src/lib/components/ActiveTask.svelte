@@ -12,11 +12,13 @@
     resetBorder,
     deleteTask,
     PRIORITY_COLORS,
+    borderPreviewColor,
   } from '$lib';
   import TodoItem from './TodoItem.svelte';
   export let task: TodoTask | null = null;
 
-  $: frameColor = task ? (task.borderColor ?? PRIORITY_COLORS[task.priority ?? 4]) : '';
+  $: previewColor = $borderPreviewColor?.id === task?.id ? $borderPreviewColor?.color : null;
+  $: frameColor = task ? (previewColor ?? task.borderColor ?? PRIORITY_COLORS[task.priority ?? 4]) : '';
 
   let showActions = false;
 

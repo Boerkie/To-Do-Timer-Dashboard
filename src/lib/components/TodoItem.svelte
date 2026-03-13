@@ -1,9 +1,9 @@
 <!-- TodoItem.svelte -->
 <script lang="ts">
-  import { createEventDispatcher, tick } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import { get } from 'svelte/store';
   import type { TodoTask } from '$lib/types';
-  import { reorderTodo, cyclePriority, tagStyles, tasks, PRIORITY_LABELS, PRIORITY_COLORS } from '$lib';
+  import { reorderTodo, cyclePriority, tagStyles, tasks, PRIORITY_LABELS, PRIORITY_COLORS, borderPreviewColor } from '$lib';
   import { clickOutside } from '$lib/actions/clickOutside';
   import { formatMs, getTotalMs, now } from '$lib/timeUtils';
 
@@ -15,7 +15,6 @@
   let titleElement: HTMLSpanElement;
   let rowElement: HTMLLIElement;
   let overflowBtn: HTMLButtonElement;
-  let colorInput: HTMLInputElement;
   let menuOpen = false;
   let menuLeft = 0;
   let menuTop = 0;
@@ -39,32 +38,45 @@
     dispatch('rename', { id: task.id, newName: draftTitle });
   }
 
-  async function openColorPicker() {
-    showColorPicker = true;
-    await tick();
-    colorInput?.showPicker?.();
-  }
-
   function toggleMenu() {
     menuOpen = !menuOpen;
     if (menuOpen) {
       menuLeft = overflowBtn.offsetLeft;
       menuTop = overflowBtn.offsetTop + overflowBtn.offsetHeight;
+    } else {
+      showColorPicker = false;
+      draftBorderColor = task.borderColor || '#000000';
+      borderPreviewColor.set(null);
+    }
+  }
+
+  function toggleColorPicker() {
+    showColorPicker = !showColorPicker;
+    if (!showColorPicker) {
+      draftBorderColor = task.borderColor || '#000000';
     }
   }
 
   function applyBorder() {
     showColorPicker = false;
     menuOpen = false;
+    borderPreviewColor.set(null);
     dispatch('changeBorder', { id: task.id, borderColor: draftBorderColor });
+  }
+
+  function cancelColorPicker() {
+    showColorPicker = false;
+    draftBorderColor = task.borderColor || '#000000';
+    borderPreviewColor.set(null);
   }
 
   function deleteTask() {
     dispatch('delete', { id: task.id });
   }
 
+  // Live preview: use draftBorderColor while picker is open, otherwise committed value
   $: borderStyleProps = !useThemeBorder
-    ? { style: `--task-border: ${task.borderColor ?? PRIORITY_COLORS[task.priority ?? 4]}` }
+    ? { style: `--task-border: ${showColorPicker ? draftBorderColor : (task.borderColor ?? PRIORITY_COLORS[task.priority ?? 4])}` }
     : {};
 
 </script>
@@ -153,38 +165,36 @@
       style="left:{menuLeft}px;top:{menuTop}px;"
       role="menu"
       tabindex="0"
-      on:mouseleave={() => (menuOpen = false)}
-      use:clickOutside={() => (menuOpen = false)}
+      on:mouseleave={showColorPicker ? null : () => (menuOpen = false)}
+      use:clickOutside={() => { menuOpen = false; showColorPicker = false; draftBorderColor = task.borderColor || '#000000'; }}
     >
+      <button type="button" on:click={startRename}>Rename</button>
+      <button type="button" class:active={showColorPicker} on:click={toggleColorPicker}>Change border</button>
       {#if showColorPicker}
-        <input
-          type="color"
-          class="color-picker"
-          bind:this={colorInput}
-          bind:value={draftBorderColor}
-          on:change={applyBorder}
-          on:blur={() => (menuOpen = false)}
-          on:keydown={(e) => {
-            if (e.key === 'Escape') {
-              showColorPicker = false;
-              menuOpen = false;
-              draftBorderColor = task.borderColor || '#000000';
-            }
-          }}
-        />
-      {:else}
-        <button type="button" on:click={startRename}>Rename</button>
-        <button type="button" on:click={openColorPicker}>Change border</button>
-        <button type="button" on:click={() => dispatch('resetBorder', { id: task.id })}>Reset border</button>
-        <div class="separator"></div>
-        <button type="button" on:click={deleteTask}>Delete</button>
+        <div class="color-row">
+          <input
+            type="color"
+            class="color-swatch"
+            bind:value={draftBorderColor}
+            on:input={() => borderPreviewColor.set({ id: task.id, color: draftBorderColor })}
+            on:keydown={(e) => {
+              if (e.key === 'Enter') applyBorder();
+              if (e.key === 'Escape') cancelColorPicker();
+            }}
+          />
+          <button type="button" class="confirm-btn" title="Apply color" on:click={applyBorder}>✓</button>
+        </div>
       {/if}
+      <button type="button" on:click={() => { dispatch('resetBorder', { id: task.id }); menuOpen = false; }}>Reset border</button>
+      <div class="separator"></div>
+      <button type="button" on:click={deleteTask}>Delete</button>
     </div>
   {/if}
 </li>
 
 <style>
   .task-row {
+    list-style: none;
     padding: 0.25rem 0.5rem;
     border-radius: 0.35rem;
     margin: 0 0 0.25rem 0;
@@ -246,26 +256,11 @@
     border: var(--tag-border-width, 2px) solid var(--border);
     font-size: 0.7rem;
   }
-  .overflow-btn {
-    opacity: 0;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  .task-row:hover .overflow-btn,
-  .task-row:focus-within .overflow-btn {
-    opacity: 1;
-  }
-  .absolute {
-    position: absolute;
-    top: 0.25rem;
-    right: 0.25rem;
-  }
   .menu {
     position: absolute;
     display: flex;
     flex-direction: column;
+    min-width: 10rem;
     background: var(--menu-bg);
     color: var(--menu-text);
     border: 1px solid var(--menu-border);
@@ -281,10 +276,35 @@
     color: inherit;
     cursor: pointer;
   }
-  .color-picker {
-    width: 100%;
+  .menu button:hover {
+    background: var(--menu-border);
+  }
+  .menu button.active {
+    background: var(--menu-border);
+  }
+  .color-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+  }
+  .color-swatch {
+    width: 2rem;
+    height: 1.5rem;
+    padding: 0;
     border: 1px solid var(--menu-border);
-    background: var(--menu-bg);
+    border-radius: 0.2rem;
+    cursor: pointer;
+    background: none;
+  }
+  .confirm-btn {
+    background: var(--accent) !important;
+    color: var(--bg-box) !important;
+    border: none;
+    border-radius: 0.2rem;
+    padding: 0.1rem 0.5rem !important;
+    cursor: pointer;
+    font-weight: bold;
   }
   .separator {
     height: 1px;

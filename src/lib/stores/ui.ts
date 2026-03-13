@@ -20,3 +20,6 @@ export const tagFilterAnd = writable(true);
 
 /** Selected priority for filtering or null for all */
 export const priorityFilter = writable<number | null>(null);
+
+/** Ephemeral live-preview for border color while the color picker is open */
+export const borderPreviewColor = writable<{ id: string; color: string } | null>(null);
