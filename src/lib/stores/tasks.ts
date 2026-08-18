@@ -1,278 +1,115 @@
-import { writable, derived, get } from 'svelte/store';
-import { browser } from '$app/environment';
+// tasks.ts
+import { derived, writable } from 'svelte/store';
 import type { TodoTask } from '$lib/types';
-import { ensureTagStyle } from './tagStyles';
+import { createLocalTaskRepository } from '$lib/repositories/localTaskRepository';
+import type { TaskRepositoryResult } from '$lib/repositories/taskRepository';
 import { tagFilter, tagFilterAnd, priorityFilter } from './ui';
-import { settings } from './settings';
 
-/** Convert a (possibly multi-word) raw tag string to camelCase.
- * "tag name" → "tagName", "Tag two" → "TagTwo", "tag 1" → "tag1"
- */
-export function toCamelTag(raw: string): string {
-  return raw
-    .trim()
-    .split(/\s+/)
-    .map((word, i) => (i === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)))
-    .join('')
-    .replace(/[^A-Za-z0-9_-]/g, '');
+const DEFAULT_PRIORITY = 4;
+const taskRepository = createLocalTaskRepository();
+
+export const tasks = taskRepository.tasks;
+
+export function activateTask(taskId: string): TaskRepositoryResult {
+  return taskRepository.activateTask(taskId);
 }
 
-/** Parse an input string and extract tags prefixed with '#'.
- * Returns the cleaned title and array of tags.
- */
-function parseInput(
-  input: string
-): { title: string; tags: string[]; priority: number } {
-  const tags: string[] = [];
-  let priority = get(settings).defaultPriority;
-  const prioMatch = input.match(/!([1-4])/);
-  if (prioMatch) {
-    priority = parseInt(prioMatch[1]);
-    input = input.replace(prioMatch[0], '');
-  }
-  const withoutTags = input.replace(/#([A-Za-z0-9_-]+(?:\s+[A-Za-z0-9_-]+)*)/g, (_, raw) => {
-    const tag = toCamelTag(raw);
-    if (tag) { tags.push(tag); ensureTagStyle(tag); }
-    return '';
-  });
-  return { title: withoutTags.trim(), tags, priority };
+export function deactivateTask(taskId: string): TaskRepositoryResult {
+  return taskRepository.deactivateTask(taskId);
 }
 
-function createTask(title: string, tags: string[], priority: number): TodoTask {
-  const now = Date.now();
-  return {
-    id: crypto.randomUUID(),
-    title,
-    tags,
-    priority,
-    activePeriods: [],
-    createdAt: now,
-    updatedAt: now,
-    isDone: false
-  };
+export function clearTask(taskId: string): TaskRepositoryResult {
+  return taskRepository.clearTask(taskId);
 }
 
-function createTasks() {
-  const initial: TodoTask[] =
-    browser && localStorage.getItem('tasks')
-      ? JSON.parse(localStorage.getItem('tasks')!)
-      : [];
-
-  initial.forEach((t) => t.tags.forEach((tag) => ensureTagStyle(tag)));
-
-  const store = writable<TodoTask[]>(initial);
-
-  if (browser) {
-    store.subscribe((value) => {
-      localStorage.setItem('tasks', JSON.stringify(value));
-    });
-  }
-
-  return store;
+export function reorderTodo(taskId: string, beforeId: string | null): TaskRepositoryResult {
+  return taskRepository.reorderTodo(taskId, beforeId);
 }
 
-export const tasks = createTasks();
-
-export function activateTask(id: string) {
-  tasks.update((list) => {
-    const currentlyActive = list.find((t) => {
-      const lastPeriod = t.activePeriods[t.activePeriods.length - 1];
-      return lastPeriod?.end === null;
-    });
-    if (currentlyActive?.id === id) return list;
-
-    const now = Date.now();
-    let previousId: string | undefined;
-
-    const updated = list.map((t) => {
-      const last = t.activePeriods[t.activePeriods.length - 1];
-      if (last && last.end === null) {
-        previousId = t.id;
-        return {
-          ...t,
-          activePeriods: [...t.activePeriods.slice(0, -1), { ...last, end: now }]
-        };
-      }
-      if (t.id === id) {
-        return {
-          ...t,
-          activePeriods: [...t.activePeriods, { start: now, end: null }],
-          updatedAt: now
-        };
-      }
-      return t;
-    });
-
-    if (previousId && previousId !== id) {
-      const idx = updated.findIndex((t) => t.id === previousId);
-      if (idx > -1) {
-        const prev = updated[idx];
-        return [prev, ...updated.filter((_, i) => i !== idx)];
-      }
-    }
-    return updated;
-  });
+export function moveToTop(taskId: string): TaskRepositoryResult {
+  return taskRepository.moveToTop(taskId);
 }
 
-export function deactivateTask(id: string) {
-  const now = Date.now();
-  tasks.update((list) =>
-    list.map((t) => {
-      if (t.id !== id) return t;
-      const last = t.activePeriods[t.activePeriods.length - 1];
-      if (!last || last.end !== null) return { ...t, updatedAt: now };
-      return {
-        ...t,
-        activePeriods: [...t.activePeriods.slice(0, -1), { ...last, end: now }],
-        updatedAt: now
-      };
-    })
-  );
+export function renameTag(oldName: string, newName: string): TaskRepositoryResult {
+  return taskRepository.renameTag(oldName, newName);
 }
 
-export function clearTask(id: string) {
-  tasks.update((list) =>
-    list.map((t) => {
-      if (t.id !== id) return t;
-      const last = t.activePeriods[t.activePeriods.length - 1];
-      const activePeriods =
-        last && last.end === null
-          ? [...t.activePeriods.slice(0, -1), { ...last, end: Date.now() }]
-          : t.activePeriods;
-      return { ...t, isDone: true, activePeriods };
-    })
-  );
+export function cyclePriority(taskId: string): TaskRepositoryResult {
+  return taskRepository.cyclePriority(taskId);
 }
 
-export function reorderTodo(id: string, beforeId: string | null) {
-  tasks.update((list) => {
-    const idx = list.findIndex((t) => t.id === id);
-    if (idx === -1) return list;
-    const [task] = list.splice(idx, 1);
-    if (beforeId) {
-      const targetIndex = list.findIndex((t) => t.id === beforeId);
-      if (targetIndex === -1) list.push(task);
-      else list.splice(targetIndex, 0, task);
-    } else {
-      list.push(task);
-    }
-    return [...list];
-  });
+export function renameTask(taskId: string, newName: string): TaskRepositoryResult {
+  return taskRepository.renameTask(taskId, newName);
 }
 
-export function moveToTop(id: string) {
-  tasks.update((list) => {
-    const idx = list.findIndex((t) => t.id === id);
-    if (idx === -1) return list;
-    const [task] = list.splice(idx, 1);
-    list.unshift(task);
-    return [...list];
-  });
+export function changeBorder(taskId: string, borderColor: string): TaskRepositoryResult {
+  return taskRepository.changeBorder(taskId, borderColor);
 }
 
-export function renameTag(oldName: string, newName: string) {
-  tasks.update((list) =>
-    list.map((t) =>
-      t.tags.some((tag) => tag === oldName)
-        ? { ...t, tags: t.tags.map((tag) => (tag === oldName ? newName : tag)) }
-        : t
-    )
-  );
+export function resetBorder(taskId: string): TaskRepositoryResult {
+  return taskRepository.resetBorder(taskId);
 }
 
-export function cyclePriority(id: string) {
-  tasks.update((list) =>
-    list.map((t) => {
-      if (t.id !== id) return t;
-      const current = t.priority ?? 4;
-      const priority = current === 4 ? 3 : current === 3 ? 2 : current === 2 ? 1 : 4;
-      return { ...t, priority };
-    })
-  );
+export function addTag(taskId: string, tagName: string): TaskRepositoryResult {
+  return taskRepository.addTag(taskId, tagName);
 }
 
-export function renameTask(id: string, newName: string) {
-  tasks.update((list) =>
-    list.map((t) =>
-      t.id === id ? { ...t, title: newName, updatedAt: Date.now() } : t
-    )
-  );
+export function removeTag(taskId: string, tagName: string): TaskRepositoryResult {
+  return taskRepository.removeTag(taskId, tagName);
 }
 
-export function changeBorder(id: string, borderColor: string) {
-  tasks.update((list) =>
-    list.map((t) =>
-      t.id === id ? { ...t, borderColor, updatedAt: Date.now() } : t
-    )
-  );
+export function updateTaskDetails(taskId: string, details: string): TaskRepositoryResult {
+  return taskRepository.updateTaskDetails(taskId, details);
 }
 
-export function resetBorder(id: string) {
-  tasks.update((list) =>
-    list.map((t) =>
-      t.id === id ? { ...t, borderColor: undefined, updatedAt: Date.now() } : t
-    )
-  );
+export function deleteTask(taskId: string): TaskRepositoryResult {
+  return taskRepository.deleteTask(taskId);
 }
 
-export function addTag(id: string, tagName: string) {
-  if (!tagName.match(/^[A-Za-z0-9_-]+$/) || tagName.length > 20) return;
-  tasks.update((list) =>
-    list.map((t) => {
-      if (t.id !== id || t.tags.includes(tagName)) return t;
-      ensureTagStyle(tagName);
-      return { ...t, tags: [...t.tags, tagName] };
-    })
-  );
+export function addTask(input: string): TaskRepositoryResult {
+  return taskRepository.addTask(input);
 }
 
-export function deleteTask(id: string) {
-  tasks.update((list) => list.filter((t) => t.id !== id));
-}
-
-/** Add a new task from an input string. */
-export function addTask(input: string): void {
-  const { title, tags, priority } = parseInput(input);
-  if (!title && tags.length === 0) return;
-  const task = createTask(title, tags, priority);
-  tasks.update((list) => [...list, task]);
-}
-
-function isTaskActive(t: TodoTask): boolean {
-  const last = t.activePeriods[t.activePeriods.length - 1];
-  return !!last && last.end === null;
+function isTaskActive(task: TodoTask): boolean {
+  const lastPeriod = task.activePeriods[task.activePeriods.length - 1];
+  return !!lastPeriod && lastPeriod.end === null;
 }
 
 export const activeTask = derived(tasks, ($tasks) =>
-  $tasks.find((t) => !t.isDone && isTaskActive(t)) || null
+  $tasks.find((task) => !task.isDone && isTaskActive(task)) || null
 );
 
 export const clearedTasks = derived(tasks, ($tasks) =>
-  $tasks.filter((t) => t.isDone)
+  $tasks.filter((task) => task.isDone)
 );
 
 export const todoTasks = derived(
   [tasks, tagFilter, tagFilterAnd, priorityFilter],
-  ([$tasks, $filter, $and, $prio]) => {
-    let res = $tasks.filter((t) => !t.isDone && !isTaskActive(t));
+  ([$tasks, $filter, $and, $priority]) => {
+    let filteredTasks = $tasks.filter((task) => !task.isDone && !isTaskActive(task));
+
     if ($filter.length) {
-      res = res.filter((t) =>
+      filteredTasks = filteredTasks.filter((task) =>
         $and
-          ? $filter.every((tag) => t.tags.includes(tag))
-          : $filter.some((tag) => t.tags.includes(tag))
+          ? $filter.every((tagName) => task.tags.includes(tagName))
+          : $filter.some((tagName) => task.tags.includes(tagName))
       );
     }
-    if ($prio !== null) {
-      res = res.filter((t) => (t.priority ?? 4) === $prio);
+
+    if ($priority !== null) {
+      filteredTasks = filteredTasks.filter((task) => (task.priority ?? DEFAULT_PRIORITY) === $priority);
     }
-    return res;
+
+    return filteredTasks;
   }
 );
 
 export const tags = derived(tasks, ($tasks) => {
-  const set = new Set<string>();
-  $tasks.forEach((t) => t.tags.forEach((tag) => set.add(tag)));
-  return Array.from(set).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+  const tagSet = new Set<string>();
+  $tasks.forEach((task) => task.tags.forEach((tagName) => tagSet.add(tagName)));
+  return Array.from(tagSet).sort((firstTag, secondTag) =>
+    firstTag.localeCompare(secondTag, undefined, { sensitivity: 'base' })
+  );
 });
 
 export const selectedDate = writable(new Date());

@@ -3,12 +3,12 @@
   import type { TodoTask } from '$lib/types';
   import {
     tagStyles,
-    tasks as tasksStore,
     PRIORITY_LABELS,
-    ensureTagStyle,
     toCamelTag,
+    addTag,
+    removeTag,
+    updateTaskDetails,
   } from '$lib';
-  import { get } from 'svelte/store';
   import { createEventDispatcher, tick } from 'svelte';
   import {
     now,
@@ -30,6 +30,9 @@
   let tagInputEl: HTMLInputElement;
   const MAX_TAG_LENGTH = 20;
   let draftDetails = '';
+  let detailsBeforeEdit = '';
+  let detailsTaskId: string | null = null;
+  let syncedDetails = '';
 
   $: totalMs = task ? getTotalActiveMs(task.activePeriods, $now) : 0;
   $: displayTime = formatMs(totalMs);
@@ -66,13 +69,19 @@
     yesterdayDateStr = `${yyyy}-${mm}-${dd}`;
   }
 
-  function removeTag(tag: string) {
+  $: {
+    const nextTaskId = task?.id ?? null;
+    const nextDetails = task?.details ?? '';
+    if (nextTaskId !== detailsTaskId || nextDetails !== syncedDetails) {
+      detailsTaskId = nextTaskId;
+      syncedDetails = nextDetails;
+      draftDetails = nextDetails;
+    }
+  }
+
+  function removeTaskTag(tag: string) {
     if (!task) return;
-    tasksStore.update((list) => {
-      const t = list.find((x) => x.id === task!.id);
-      if (t) t.tags = t.tags.filter((tg) => tg !== tag);
-      return [...list];
-    });
+    removeTag(task.id, tag);
   }
 
   function startTitleEdit() {
@@ -97,12 +106,7 @@
   function dropTag(e: DragEvent) {
     const tag = e.dataTransfer?.getData('text/tag');
     if (!tag || !task || task.tags.includes(tag)) return;
-    ensureTagStyle(tag);
-    tasksStore.update((list) => {
-      const t = list.find((x) => x.id === task!.id);
-      if (t) t.tags = [...t.tags, tag];
-      return [...list];
-    });
+    addTag(task.id, tag);
   }
 
   function commitTag() {
@@ -118,10 +122,24 @@
       tagName.length <= MAX_TAG_LENGTH &&
       !task.tags.some((t) => t.toLowerCase() === tagName.toLowerCase())
     ) {
-      ensureTagStyle(tagName);
       dispatch('addTag', { id: task.id, tagName });
     }
     addingTag = false;
+  }
+
+  function startDetailsEdit() {
+    detailsBeforeEdit = draftDetails;
+  }
+
+  function commitDetails() {
+    if (!task || draftDetails === syncedDetails) return;
+    updateTaskDetails(task.id, draftDetails);
+  }
+
+  function cancelDetailsEdit(event: KeyboardEvent) {
+    if (event.key !== 'Escape') return;
+    draftDetails = detailsBeforeEdit;
+    (event.target as HTMLTextAreaElement).blur();
   }
 </script>
 
@@ -164,14 +182,10 @@
     </div>
     <textarea
       placeholder="Task details"
-      bind:value={task.details}
-      on:focus={() => (draftDetails = task.details ?? '')}
-      on:keydown={(e) => {
-        if (e.key === 'Escape') {
-          task.details = draftDetails;
-          (e.target as HTMLTextAreaElement).blur();
-        }
-      }}
+      bind:value={draftDetails}
+      on:focus={startDetailsEdit}
+      on:blur={commitDetails}
+      on:keydown={cancelDetailsEdit}
     ></textarea>
     <div class="readonly">Recent Time spend</div>
     <div class="readonly">Today: {displayTime}</div>
@@ -199,7 +213,7 @@
           on:dragend={(e: DragEvent) => {
             const el = detailsSection;
             if (!el.contains(document.elementFromPoint(e.clientX, e.clientY))) {
-              removeTag(tag);
+              removeTaskTag(tag);
             }
           }}
           style="background:{$tagStyles[tag]?.bg};color:{$tagStyles[tag]?.fg};border-color:{$tagStyles[tag]?.border}">{tag}</span

@@ -6,7 +6,7 @@
     deactivateTask,
     clearTask,
     moveToTop,
-    tasks as tasksStore,
+    addTag,
     renameTask,
     changeBorder,
     resetBorder,
@@ -51,11 +51,7 @@
     const tag = e.dataTransfer?.getData('text/tag');
     if (id) activateTask(id);
     if (tag && task && !task.tags.includes(tag)) {
-      tasksStore.update((list) => {
-        const t = list.find((x) => x.id === task.id);
-        if (t) t.tags = [...t.tags, tag];
-        return [...list];
-      });
+      addTag(task.id, tag);
     }
   }
 </script>

@@ -1,7 +1,7 @@
 agents:
   - key: frontend
     name: "Front End Developer"
-    model: "gpt-4-32k"
+    model: "any"
     description: "Expert in front-end development: HTML, CSS, JavaScript, and Svelte."
     system_prompt: |
       You are a front-end developer. Write clean code following project conventions:

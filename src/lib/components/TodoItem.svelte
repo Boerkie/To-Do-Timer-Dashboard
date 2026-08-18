@@ -1,9 +1,8 @@
 <!-- TodoItem.svelte -->
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { get } from 'svelte/store';
   import type { TodoTask } from '$lib/types';
-  import { reorderTodo, cyclePriority, tagStyles, tasks, PRIORITY_LABELS, PRIORITY_COLORS, borderPreviewColor } from '$lib';
+  import { reorderTodo, cyclePriority, addTag, tagStyles, PRIORITY_LABELS, PRIORITY_COLORS, borderPreviewColor } from '$lib';
   import { clickOutside } from '$lib/actions/clickOutside';
   import { formatMs, getTotalMs, now } from '$lib/timeUtils';
 
@@ -100,11 +99,7 @@
     if (id && id !== task.id) reorderTodo(id, task.id);
     const tag = e.dataTransfer?.getData('text/tag');
     if (tag && !task.tags.includes(tag)) {
-      tasks.update((list) => {
-        const t = list.find((x) => x.id === task.id);
-        if (t) t.tags = [...t.tags, tag];
-        return [...list];
-      });
+      addTag(task.id, tag);
     }
   }: null}>
   <div class="row">

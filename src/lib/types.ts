@@ -1,6 +1,14 @@
+// types.ts
 export interface ActivePeriod {
   start: number; // Epoch timestamp when active period started
   end: number | null; // Epoch timestamp when active period ended, or null if currently active
+}
+
+export interface Board {
+  id: string;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
 }
 
 export interface TodoTask {
