@@ -2,7 +2,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { derived } from 'svelte/store';
-  import { tasks, selectedDate as selectedDateStore } from '$lib/stores/tasks';
+  import { activeBoardTasks, selectedDate as selectedDateStore } from '$lib/stores/tasks';
   import { settings } from '$lib/stores/settings';
   import { PRIORITY_COLORS } from '$lib/constants';
   import type { TodoTask, ActivePeriod } from '$lib/types';
@@ -77,14 +77,14 @@
   const rangeMs = () => dayEndMs - dayStartMs;
 
   const recapData = derived(
-    [tasks, now, selectedDateStore],
-    ([$tasks, $now, _]) => {
+    [activeBoardTasks, now, selectedDateStore],
+    ([$activeBoardTasks, $now, _]) => {
       const entries: Array<{
         task: TodoTask;
         periods: Array<{ start: number; end: number }>;
         first: number;
       }> = [];
-      $tasks.forEach((task) => {
+      $activeBoardTasks.forEach((task) => {
         const periods: Array<{ start: number; end: number }> = [];
         task.activePeriods.forEach((p: ActivePeriod) => {
           const s = p.start;
@@ -267,6 +267,7 @@
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
   }
   .bar-label {
@@ -286,6 +287,7 @@
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
   }
   .prio {

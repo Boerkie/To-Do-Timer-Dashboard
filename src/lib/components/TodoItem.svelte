@@ -2,7 +2,20 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import type { TodoTask } from '$lib/types';
-  import { reorderTodo, cyclePriority, addTag, tagStyles, PRIORITY_LABELS, PRIORITY_COLORS, borderPreviewColor } from '$lib';
+  import {
+    reorderTodo,
+    cyclePriority,
+    addTag,
+    tagStyles,
+    PRIORITY_LABELS,
+    PRIORITY_COLORS,
+    borderPreviewColor,
+    canAddTag,
+    canDeleteItem,
+    canUpdateActive,
+    canUpdateItem,
+    canUpdateOrder
+  } from '$lib';
   import { clickOutside } from '$lib/actions/clickOutside';
   import { formatMs, getTotalMs, now } from '$lib/timeUtils';
 
@@ -27,17 +40,20 @@
   const dispatch = createEventDispatcher();
 
   function startRename() {
+    if (!$canUpdateItem) return;
     draftTitle = task.title;
     editingTitle = true;
     menuOpen = false;
   }
 
   function commitRename() {
+    if (!$canUpdateItem) return;
     editingTitle = false;
     dispatch('rename', { id: task.id, newName: draftTitle });
   }
 
   function toggleMenu() {
+    if (!hasMenuActions) return;
     menuOpen = !menuOpen;
     if (menuOpen) {
       menuLeft = overflowBtn.offsetLeft;
@@ -50,6 +66,7 @@
   }
 
   function toggleColorPicker() {
+    if (!$canUpdateItem) return;
     showColorPicker = !showColorPicker;
     if (!showColorPicker) {
       draftBorderColor = task.borderColor || '#000000';
@@ -57,6 +74,7 @@
   }
 
   function applyBorder() {
+    if (!$canUpdateItem) return;
     showColorPicker = false;
     menuOpen = false;
     borderPreviewColor.set(null);
@@ -70,8 +88,12 @@
   }
 
   function deleteTask() {
+    if (!$canDeleteItem) return;
     dispatch('delete', { id: task.id });
   }
+
+  $: canDragTask = $canUpdateActive || $canUpdateOrder;
+  $: hasMenuActions = $canUpdateItem || $canDeleteItem;
 
   // Live preview: use draftBorderColor while picker is open, otherwise committed value
   $: borderStyleProps = !useThemeBorder
@@ -86,8 +108,9 @@
   class:compact={compact}
   bind:this={rowElement}
   {...borderStyleProps}
-  draggable="true"
+  draggable={canDragTask}
   on:dragstart={(e: DragEvent) => {
+    if (!canDragTask) return;
     dragging = true;
     e.dataTransfer?.setData('text/task', task.id);
   }}
@@ -96,20 +119,27 @@
   on:drop={interceptDrop ? (e: DragEvent) => {
     e.stopPropagation();
     const id = e.dataTransfer?.getData('text/task');
-    if (id && id !== task.id) reorderTodo(id, task.id);
+    if (id && id !== task.id && $canUpdateOrder) reorderTodo(id, task.id);
     const tag = e.dataTransfer?.getData('text/tag');
-    if (tag && !task.tags.includes(tag)) {
+    if (tag && $canAddTag && !task.tags.includes(tag)) {
       addTag(task.id, tag);
     }
   }: null}>
   <div class="row">
-    <button
-      type="button"
-      class="priority p{task.priority ?? 4}"
-      title={PRIORITY_LABELS[task.priority ?? 4]}
-      aria-label="Change priority"
-      on:click={() => cyclePriority(task.id)}
-    ></button>
+    {#if $canUpdateItem}
+      <button
+        type="button"
+        class="priority p{task.priority ?? 4}"
+        title={PRIORITY_LABELS[task.priority ?? 4]}
+        aria-label="Change priority"
+        on:click={() => cyclePriority(task.id)}
+      ></button>
+    {:else}
+      <span
+        class="priority p{task.priority ?? 4}"
+        title={PRIORITY_LABELS[task.priority ?? 4]}
+      ></span>
+    {/if}
     {#if editingTitle}
       <input
         class="title-input"
@@ -129,21 +159,23 @@
         class="title"
         bind:this={titleElement}
         role="button"
-        tabindex="0"
+        tabindex={$canUpdateItem ? 0 : -1}
         aria-label="Rename task"
         on:dblclick={startRename}
         on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && startRename()}
       >{task.title}</span>
     {/if}
-    <button
-      type="button"
-      bind:this={overflowBtn}
-      tabindex="0"
-      aria-label="More actions"
-      on:click={toggleMenu}
-    >
-      ⋮
-    </button>
+    {#if hasMenuActions}
+      <button
+        type="button"
+        bind:this={overflowBtn}
+        tabindex="0"
+        aria-label="More actions"
+        on:click={toggleMenu}
+      >
+        ⋮
+      </button>
+    {/if}
     <span class="time">{formatMs(getTotalMs(task.activePeriods, $now))}</span>
   </div>
   <div class="tags">
@@ -163,8 +195,10 @@
       on:mouseleave={showColorPicker ? null : () => (menuOpen = false)}
       use:clickOutside={() => { menuOpen = false; showColorPicker = false; draftBorderColor = task.borderColor || '#000000'; }}
     >
-      <button type="button" on:click={startRename}>Rename</button>
-      <button type="button" class:active={showColorPicker} on:click={toggleColorPicker}>Change border</button>
+      {#if $canUpdateItem}
+        <button type="button" on:click={startRename}>Rename</button>
+        <button type="button" class:active={showColorPicker} on:click={toggleColorPicker}>Change border</button>
+      {/if}
       {#if showColorPicker}
         <div class="color-row">
           <input
@@ -180,9 +214,15 @@
           <button type="button" class="confirm-btn" title="Apply color" on:click={applyBorder}>✓</button>
         </div>
       {/if}
-      <button type="button" on:click={() => { dispatch('resetBorder', { id: task.id }); menuOpen = false; }}>Reset border</button>
-      <div class="separator"></div>
-      <button type="button" on:click={deleteTask}>Delete</button>
+      {#if $canUpdateItem}
+        <button type="button" on:click={() => { dispatch('resetBorder', { id: task.id }); menuOpen = false; }}>Reset border</button>
+      {/if}
+      {#if $canUpdateItem && $canDeleteItem}
+        <div class="separator"></div>
+      {/if}
+      {#if $canDeleteItem}
+        <button type="button" on:click={deleteTask}>Delete</button>
+      {/if}
     </div>
   {/if}
 </li>

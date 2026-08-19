@@ -1,6 +1,6 @@
 // localTaskRepository.ts
 import { browser } from '$app/environment';
-import { get, writable } from 'svelte/store';
+import { get, writable, type Readable } from 'svelte/store';
 import type { TodoTask } from '$lib/types';
 import { parseTaskInput } from '$lib/domain/taskInput';
 import { settings } from '$lib/stores/settings';
@@ -12,24 +12,36 @@ const DEFAULT_PRIORITY = 4;
 const MAX_TAG_LENGTH = 20;
 const TAG_NAME_PATTERN = /^[A-Za-z0-9_-]+$/;
 
-function readStoredTasks(): TodoTask[] {
+type StoredTodoTask = Omit<TodoTask, 'boardId'> & { boardId?: string | null };
+
+function assignTaskBoard(task: StoredTodoTask, boardId: string | null): TodoTask {
+  return {
+    ...task,
+    boardId: task.boardId ?? boardId ?? ''
+  };
+}
+
+function readStoredTasks(defaultBoardId: string | null): TodoTask[] {
   if (!browser) return [];
 
   const storedTasks = localStorage.getItem(TASKS_STORAGE_KEY);
   if (!storedTasks) return [];
 
   try {
-    return JSON.parse(storedTasks);
+    const parsedTasks = JSON.parse(storedTasks) as StoredTodoTask[];
+    if (!Array.isArray(parsedTasks)) return [];
+    return parsedTasks.map((task) => assignTaskBoard(task, defaultBoardId));
   } catch {
     return [];
   }
 }
 
-function createTask(title: string, tags: string[], priority: number): TodoTask {
+function createTask(title: string, tags: string[], priority: number, boardId: string): TodoTask {
   const nowTimestamp = Date.now();
 
   return {
     id: crypto.randomUUID(),
+    boardId,
     title,
     tags,
     priority,
@@ -51,8 +63,8 @@ function ensureTaskTags(tasks: TodoTask[]): void {
   });
 }
 
-export function createLocalTaskRepository(): TaskRepository {
-  const initialTasks = readStoredTasks();
+export function createLocalTaskRepository(activeBoardId: Readable<string | null>): TaskRepository {
+  const initialTasks = readStoredTasks(get(activeBoardId));
   ensureTaskTags(initialTasks);
 
   const tasks = writable<TodoTask[]>(initialTasks);
@@ -312,7 +324,10 @@ export function createLocalTaskRepository(): TaskRepository {
       if (!title && tags.length === 0) return;
 
       tags.forEach((tagName) => ensureTagStyle(tagName));
-      const task = createTask(title, tags, priority);
+      const boardId = get(activeBoardId);
+      if (!boardId) return;
+
+      const task = createTask(title, tags, priority, boardId);
       tasks.update((taskList) => [...taskList, task]);
     }
   };

@@ -1,23 +1,26 @@
 <!-- AddBar.svelte -->
 <script lang="ts">
-  import { addTask } from '$lib';
+  import { addTask, canAddItem } from '$lib';
   let newTask = '';
 
   function submit() {
+    if (!$canAddItem) return;
     addTask(newTask);
     newTask = '';
   }
 </script>
 
-<div class="add-bar">
-  <input
-    type="text"
-    placeholder="Add new task (#tag for tags)"
-    bind:value={newTask}
-    on:keydown={(e) => e.key === 'Enter' && submit()}
-  />
-  <button type="button" on:click={submit}>Add</button>
-</div>
+{#if $canAddItem}
+  <div class="add-bar">
+    <input
+      type="text"
+      placeholder="Add new task (#tag for tags)"
+      bind:value={newTask}
+      on:keydown={(e) => e.key === 'Enter' && submit()}
+    />
+    <button type="button" on:click={submit}>Add</button>
+  </div>
+{/if}
 
 <style>
   .add-bar {

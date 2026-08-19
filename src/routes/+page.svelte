@@ -10,28 +10,49 @@
     AdvancedDetails,
     PriorityFilter,
     TagsList,
+    MigrationPrompt,
+    SharingPanel,
     todoTasks,
     clearedTasks,
     activeTask,
     selectedDate,
     tags,
+    taskCommandError,
+    clearTaskCommandError,
     showCleared,
     renameTask,
     addTag,
     PRIORITY_COLORS,
     borderPreviewColor,
+    canManageMembers,
+    canViewActive,
+    canViewBacklog,
+    canViewDayRecap,
+    canViewDetails,
+    usesPocketBaseBackend,
   } from '$lib';
   import { now } from '$lib/timeUtils';
 
 </script>
 
 <PageBanner />
+<MigrationPrompt />
+{#if $taskCommandError}
+  <div class="task-error" role="status">
+    <span>{$taskCommandError}</span>
+    <button type="button" aria-label="Dismiss task error" on:click={clearTaskCommandError}>
+      Dismiss
+    </button>
+  </div>
+{/if}
 <div class="app-grid">
   <!-- Left panel: Recap -->
   <div class="left-panel">
     <div class="box-title">Recap</div>
     <div class="box recap-box">
-      <DayRecap bind:selectedDate={$selectedDate} />
+      {#if $canViewDayRecap}
+        <DayRecap bind:selectedDate={$selectedDate} />
+      {/if}
     </div>
   </div>
 
@@ -42,14 +63,18 @@
       class="box active-box"
       style="--active-bg:{$activeTask ? (($borderPreviewColor?.id === $activeTask.id ? $borderPreviewColor?.color : null) ?? $activeTask.borderColor ?? PRIORITY_COLORS[$activeTask.priority ?? 4]) : 'var(--border)'}"
     >
-      <ActiveTask task={$activeTask} />
+      {#if $canViewActive}
+        <ActiveTask task={$activeTask} />
+      {/if}
     </div>
 
     <div class="header-row">
       <div class="box-title">TO DO List</div>
     </div>
     <div class="box todo-list-box">
-      <TodoList tasks={$todoTasks} />
+      {#if $canViewBacklog}
+        <TodoList tasks={$todoTasks} />
+      {/if}
     </div>
     <div class="box add-bar-box">
       <AddBar />
@@ -68,7 +93,7 @@
     <div class="box-title">Details</div>
     <div class="box details-box">
       <AdvancedDetails
-        task={$activeTask}
+        task={$canViewDetails ? $activeTask : null}
         on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
         on:addTag={(e) => addTag(e.detail.id, e.detail.tagName)}
       />
@@ -79,8 +104,16 @@
     </div>
     <div class="box-title">Tags</div>
     <div class="box tags-box">
-      <TagsList tags={$tags} />
+      {#if $canViewBacklog}
+        <TagsList tags={$tags} />
+      {/if}
     </div>
+    {#if usesPocketBaseBackend && $canManageMembers}
+      <div class="box-title">Sharing</div>
+      <div class="box sharing-box">
+        <SharingPanel />
+      </div>
+    {/if}
   </div>
 </div>
 
@@ -147,5 +180,23 @@
   }
   .priority-box {
     padding: 0.5rem;
+  }
+  .task-error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    background: #4a1f25;
+    color: #ffe8e8;
+    border-bottom: 1px solid #d35a6b;
+  }
+  .task-error button {
+    border: 1px solid currentColor;
+    border-radius: 0.25rem;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
   }
 </style>

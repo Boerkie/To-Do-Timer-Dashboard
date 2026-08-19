@@ -1,6 +1,9 @@
 // storage.ts
 import { get } from 'svelte/store';
-import { tasks, settings, tagStyles, ensureTagStyle } from '$lib';
+import { activeBoardId } from '$lib/stores/boards';
+import { settings } from '$lib/stores/settings';
+import { tagStyles, ensureTagStyle } from '$lib/stores/tagStyles';
+import { tasks } from '$lib/stores/tasks';
 import type { TodoTask } from './types';
 import type { Settings } from './stores/settings';
 import type { TagStyle } from './stores/tagStyles';
@@ -9,6 +12,18 @@ export interface ExportData {
   tasks: TodoTask[];
   settings: Settings;
   tagStyles: Record<string, TagStyle>;
+}
+
+type ImportedTodoTask = Omit<TodoTask, 'boardId'> & { boardId?: string | null };
+
+function assignImportedTasksToActiveBoard(importedTasks: ImportedTodoTask[]): TodoTask[] {
+  const currentBoardId = get(activeBoardId);
+  if (!currentBoardId) return importedTasks.filter((task): task is TodoTask => !!task.boardId);
+
+  return importedTasks.map((task) => ({
+    ...task,
+    boardId: currentBoardId
+  }));
 }
 
 export function downloadData(): void {
@@ -37,8 +52,8 @@ export async function loadData(file: File): Promise<void> {
     return;
   }
   if (data.tasks && Array.isArray(data.tasks) && data.tasks.length) {
-    data.tasks.forEach((t) => t.tags.forEach((tag) => ensureTagStyle(tag)));
-    tasks.set(data.tasks);
+    data.tasks.forEach((task) => task.tags.forEach((tag) => ensureTagStyle(tag)));
+    tasks.set(assignImportedTasksToActiveBoard(data.tasks));
   }
   if (data.settings && Object.keys(data.settings).length) {
     settings.set(data.settings as Settings);

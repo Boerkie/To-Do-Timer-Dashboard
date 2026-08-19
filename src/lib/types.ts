@@ -13,6 +13,7 @@ export interface Board {
 
 export interface TodoTask {
   id: string; // Unique identifier (UUID)
+  boardId: string;
   title: string; // Short title or label for the task
   details?: string; // Optional long description/details
   tags: string[]; // Array of tags

@@ -8,21 +8,26 @@
     changeBorder,
     resetBorder,
     deleteTask as removeTask,
-    addTag
+    addTag,
+    canAddTag,
+    canUpdateActive,
+    canUpdateOrder
   } from '$lib';
   import TodoItem from './TodoItem.svelte';
   import { settings } from '$lib/stores/settings';
   export let tasks: TodoTask[] = [];
+
+  $: canDropOnList = $canAddTag || $canUpdateOrder;
 </script>
 
 <section class="todo-list">
   <div class="list-area">
     <ol
       class:showNumbers={$settings.showListNumbers}
-      on:dragover|preventDefault
+      on:dragover|preventDefault={canDropOnList ? () => {} : null}
       on:drop={(e: DragEvent) => {
         const tag = e.dataTransfer?.getData('text/tag');
-        if (tag) {
+        if (tag && $canAddTag) {
           const target = document.elementFromPoint(e.clientX, e.clientY);
           const li = target?.closest('li.task-row') as HTMLLIElement | null;
           const taskId = li?.dataset.id;
@@ -30,12 +35,12 @@
           return;
         }
         const draggedId = e.dataTransfer?.getData('text/task');
-        if (!draggedId) return;
+        if (!draggedId || !$canUpdateOrder) return;
         const target = document.elementFromPoint(e.clientX, e.clientY);
         const li = target?.closest('li.task-row') as HTMLLIElement | null;
         const beforeId = li?.dataset.id ?? null;
         reorderTodo(draggedId, beforeId);
-        deactivateTask(draggedId);
+        if ($canUpdateActive) deactivateTask(draggedId);
       }}
     >
       {#each tasks as t}

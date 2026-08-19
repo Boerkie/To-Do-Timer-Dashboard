@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TodoTask } from '$lib/types';
-  import { deleteTask } from '$lib';
+  import { canDeleteItem, deleteTask } from '$lib';
   export let tasks: TodoTask[] = [];
 </script>
 
@@ -9,13 +9,15 @@
     {#each tasks as t}
       <li>
         <span>{t.title}</span>
-        <button
-          type="button"
-          class="delete-btn"
-          on:click={() => deleteTask(t.id)}
-        >
-          🗑️
-        </button>
+        {#if $canDeleteItem}
+          <button
+            type="button"
+            class="delete-btn"
+            on:click={() => deleteTask(t.id)}
+          >
+            🗑️
+          </button>
+        {/if}
       </li>
     {/each}
   </ul>

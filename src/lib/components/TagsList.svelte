@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tagStyles, renameTag, tagFilter, tagFilterAnd } from '$lib';
+  import { canAddTag, canUpdateItem, tagStyles, renameTag, tagFilter, tagFilterAnd } from '$lib';
   import { get } from 'svelte/store';
 
   export let tags: string[] = [];
@@ -13,6 +13,7 @@
   $: selected = $tagFilter;
 
   function startEdit(tag: string) {
+    if (!$canUpdateItem) return;
     const style = get(tagStyles)[tag] || {
       bg: '#eeeeee',
       fg: '#000000',
@@ -26,7 +27,7 @@
   }
 
   function saveEdit() {
-    if (!editTag) return;
+    if (!editTag || !$canUpdateItem) return;
     tagStyles.update((styles) => {
       delete styles[editTag!];
       styles[newName] = { name: newName, bg, fg, border };
@@ -47,6 +48,10 @@
   function toggleMode() {
     tagFilterAnd.update((v) => !v);
   }
+
+  function handleEditKeydown(event: KeyboardEvent) {
+    if (event.key === 'Escape') editTag = null;
+  }
 </script>
 
 <section class="tags-list">
@@ -56,12 +61,12 @@
         type="button"
         class="tag-pill {selected.includes(tag) ? 'selected' : ''}"
         style="background:{$tagStyles[tag]?.bg};color:{$tagStyles[tag]?.fg};border-color:{$tagStyles[tag]?.border}"
-        draggable="true"
+        draggable={$canAddTag}
         aria-pressed={selected.includes(tag)}
         aria-label="Tag: {tag}"
         on:contextmenu|preventDefault={() => startEdit(tag)}
         on:dragstart={(e: DragEvent) =>
-          e.dataTransfer?.setData('text/tag', tag)}
+          $canAddTag && e.dataTransfer?.setData('text/tag', tag)}
         on:click={() => toggleTag(tag)}
         on:keydown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -81,32 +86,31 @@
   {/if}
 
   {#if editTag}
-    <table
+    <form
       class="edit-dialog"
-      on:keydown={(e) => e.key === 'Escape' && (editTag = null)}
+      on:submit|preventDefault={saveEdit}
     >
-      <tbody>
-        <tr>
-          <td colspan="2"><input type="text" bind:value={newName} /></td>
-        </tr>
-        <tr>
-          <td>Background</td>
-          <td><input type="color" bind:value={bg} /></td>
-        </tr>
-        <tr>
-          <td>Text</td>
-          <td><input type="color" bind:value={fg} /></td>
-        </tr>
-        <tr>
-          <td>Border</td>
-          <td><input type="color" bind:value={border} /></td>
-        </tr>
-        <tr>
-          <td><button on:click={saveEdit}>Save</button></td>
-          <td><button on:click={() => (editTag = null)}>Cancel</button></td>
-        </tr>
-      </tbody>
-    </table>
+      <label class="full-row">
+        <span>Name</span>
+        <input type="text" bind:value={newName} on:keydown={handleEditKeydown} />
+      </label>
+      <label>
+        <span>Background</span>
+        <input type="color" bind:value={bg} on:keydown={handleEditKeydown} />
+      </label>
+      <label>
+        <span>Text</span>
+        <input type="color" bind:value={fg} on:keydown={handleEditKeydown} />
+      </label>
+      <label>
+        <span>Border</span>
+        <input type="color" bind:value={border} on:keydown={handleEditKeydown} />
+      </label>
+      <div class="edit-actions">
+        <button type="submit">Save</button>
+        <button type="button" on:click={() => (editTag = null)}>Cancel</button>
+      </div>
+    </form>
   {/if}
 </section>
 
@@ -134,17 +138,30 @@
     margin-top: 0.5rem;
   }
   .edit-dialog {
+    display: grid;
+    gap: 0.4rem;
     margin-top: 0.5rem;
-    border-collapse: collapse;
     width: 100%;
   }
-  .edit-dialog td {
-    padding: 0.25rem;
+  .edit-dialog label {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .edit-dialog .full-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+  .edit-dialog input[type='text'] {
+    width: 100%;
   }
   .edit-dialog input[type='color'] {
-    width: 100%;
+    width: 3rem;
   }
-  .edit-dialog button {
-    width: 100%;
+  .edit-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
   }
 </style>

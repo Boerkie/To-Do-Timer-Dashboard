@@ -1,73 +1,110 @@
 // tasks.ts
 import { derived, writable } from 'svelte/store';
 import type { TodoTask } from '$lib/types';
+import { usesPocketBaseBackend } from '$lib/repositories/backend';
 import { createLocalTaskRepository } from '$lib/repositories/localTaskRepository';
+import { createPocketBaseTaskRepository } from '$lib/repositories/pocketBaseTaskRepository';
+import type { TaskRepository } from '$lib/repositories/taskRepository';
 import type { TaskRepositoryResult } from '$lib/repositories/taskRepository';
 import { tagFilter, tagFilterAnd, priorityFilter } from './ui';
+import { activeBoardId } from './boards';
 
 const DEFAULT_PRIORITY = 4;
-const taskRepository = createLocalTaskRepository();
+const taskRepository = createTaskRepository();
+
+function createTaskRepository(): TaskRepository {
+  return usesPocketBaseBackend
+    ? createPocketBaseTaskRepository(activeBoardId)
+    : createLocalTaskRepository(activeBoardId);
+}
 
 export const tasks = taskRepository.tasks;
+export const taskCommandError = writable<string | null>(null);
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'Task update failed.';
+}
+
+function runTaskCommand(command: () => TaskRepositoryResult): TaskRepositoryResult {
+  taskCommandError.set(null);
+
+  try {
+    const result = command();
+
+    if (result && typeof (result as Promise<void>).then === 'function') {
+      return (result as Promise<void>).catch((error) => {
+        taskCommandError.set(getErrorMessage(error));
+      });
+    }
+
+    return result;
+  } catch (error) {
+    taskCommandError.set(getErrorMessage(error));
+  }
+}
+
+export function clearTaskCommandError(): void {
+  taskCommandError.set(null);
+}
 
 export function activateTask(taskId: string): TaskRepositoryResult {
-  return taskRepository.activateTask(taskId);
+  return runTaskCommand(() => taskRepository.activateTask(taskId));
 }
 
 export function deactivateTask(taskId: string): TaskRepositoryResult {
-  return taskRepository.deactivateTask(taskId);
+  return runTaskCommand(() => taskRepository.deactivateTask(taskId));
 }
 
 export function clearTask(taskId: string): TaskRepositoryResult {
-  return taskRepository.clearTask(taskId);
+  return runTaskCommand(() => taskRepository.clearTask(taskId));
 }
 
 export function reorderTodo(taskId: string, beforeId: string | null): TaskRepositoryResult {
-  return taskRepository.reorderTodo(taskId, beforeId);
+  return runTaskCommand(() => taskRepository.reorderTodo(taskId, beforeId));
 }
 
 export function moveToTop(taskId: string): TaskRepositoryResult {
-  return taskRepository.moveToTop(taskId);
+  return runTaskCommand(() => taskRepository.moveToTop(taskId));
 }
 
 export function renameTag(oldName: string, newName: string): TaskRepositoryResult {
-  return taskRepository.renameTag(oldName, newName);
+  return runTaskCommand(() => taskRepository.renameTag(oldName, newName));
 }
 
 export function cyclePriority(taskId: string): TaskRepositoryResult {
-  return taskRepository.cyclePriority(taskId);
+  return runTaskCommand(() => taskRepository.cyclePriority(taskId));
 }
 
 export function renameTask(taskId: string, newName: string): TaskRepositoryResult {
-  return taskRepository.renameTask(taskId, newName);
+  return runTaskCommand(() => taskRepository.renameTask(taskId, newName));
 }
 
 export function changeBorder(taskId: string, borderColor: string): TaskRepositoryResult {
-  return taskRepository.changeBorder(taskId, borderColor);
+  return runTaskCommand(() => taskRepository.changeBorder(taskId, borderColor));
 }
 
 export function resetBorder(taskId: string): TaskRepositoryResult {
-  return taskRepository.resetBorder(taskId);
+  return runTaskCommand(() => taskRepository.resetBorder(taskId));
 }
 
 export function addTag(taskId: string, tagName: string): TaskRepositoryResult {
-  return taskRepository.addTag(taskId, tagName);
+  return runTaskCommand(() => taskRepository.addTag(taskId, tagName));
 }
 
 export function removeTag(taskId: string, tagName: string): TaskRepositoryResult {
-  return taskRepository.removeTag(taskId, tagName);
+  return runTaskCommand(() => taskRepository.removeTag(taskId, tagName));
 }
 
 export function updateTaskDetails(taskId: string, details: string): TaskRepositoryResult {
-  return taskRepository.updateTaskDetails(taskId, details);
+  return runTaskCommand(() => taskRepository.updateTaskDetails(taskId, details));
 }
 
 export function deleteTask(taskId: string): TaskRepositoryResult {
-  return taskRepository.deleteTask(taskId);
+  return runTaskCommand(() => taskRepository.deleteTask(taskId));
 }
 
 export function addTask(input: string): TaskRepositoryResult {
-  return taskRepository.addTask(input);
+  return runTaskCommand(() => taskRepository.addTask(input));
 }
 
 function isTaskActive(task: TodoTask): boolean {
@@ -75,18 +112,22 @@ function isTaskActive(task: TodoTask): boolean {
   return !!lastPeriod && lastPeriod.end === null;
 }
 
-export const activeTask = derived(tasks, ($tasks) =>
-  $tasks.find((task) => !task.isDone && isTaskActive(task)) || null
+export const activeBoardTasks = derived([tasks, activeBoardId], ([$tasks, $activeBoardId]) =>
+  $activeBoardId ? $tasks.filter((task) => task.boardId === $activeBoardId) : []
 );
 
-export const clearedTasks = derived(tasks, ($tasks) =>
-  $tasks.filter((task) => task.isDone)
+export const activeTask = derived(activeBoardTasks, ($activeBoardTasks) =>
+  $activeBoardTasks.find((task) => !task.isDone && isTaskActive(task)) || null
+);
+
+export const clearedTasks = derived(activeBoardTasks, ($activeBoardTasks) =>
+  $activeBoardTasks.filter((task) => task.isDone)
 );
 
 export const todoTasks = derived(
-  [tasks, tagFilter, tagFilterAnd, priorityFilter],
-  ([$tasks, $filter, $and, $priority]) => {
-    let filteredTasks = $tasks.filter((task) => !task.isDone && !isTaskActive(task));
+  [activeBoardTasks, tagFilter, tagFilterAnd, priorityFilter],
+  ([$activeBoardTasks, $filter, $and, $priority]) => {
+    let filteredTasks = $activeBoardTasks.filter((task) => !task.isDone && !isTaskActive(task));
 
     if ($filter.length) {
       filteredTasks = filteredTasks.filter((task) =>
@@ -104,9 +145,9 @@ export const todoTasks = derived(
   }
 );
 
-export const tags = derived(tasks, ($tasks) => {
+export const tags = derived(activeBoardTasks, ($activeBoardTasks) => {
   const tagSet = new Set<string>();
-  $tasks.forEach((task) => task.tags.forEach((tagName) => tagSet.add(tagName)));
+  $activeBoardTasks.forEach((task) => task.tags.forEach((tagName) => tagSet.add(tagName)));
   return Array.from(tagSet).sort((firstTag, secondTag) =>
     firstTag.localeCompare(secondTag, undefined, { sensitivity: 'base' })
   );

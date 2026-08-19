@@ -57,7 +57,13 @@ export function createLocalBoardRepository(): BoardRepository {
 
     ensureDefaultBoard(defaultName: string) {
       const existingBoards = get(boards);
-      if (existingBoards.length > 0) return;
+      const existingActiveBoardId = get(activeBoardId);
+
+      if (existingBoards.length > 0) {
+        const activeBoardExists = existingBoards.some((board) => board.id === existingActiveBoardId);
+        if (!activeBoardExists) activeBoardId.set(existingBoards[0].id);
+        return;
+      }
 
       const board = createBoard(defaultName);
       boards.set([board]);

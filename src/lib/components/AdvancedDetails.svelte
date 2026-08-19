@@ -8,6 +8,10 @@
     addTag,
     removeTag,
     updateTaskDetails,
+    canAddDetails,
+    canAddTag,
+    canUpdateDetails,
+    canUpdateItem,
   } from '$lib';
   import { createEventDispatcher, tick } from 'svelte';
   import {
@@ -33,6 +37,8 @@
   let detailsBeforeEdit = '';
   let detailsTaskId: string | null = null;
   let syncedDetails = '';
+
+  $: canEditDetails = $canUpdateDetails || (!syncedDetails && $canAddDetails);
 
   $: totalMs = task ? getTotalActiveMs(task.activePeriods, $now) : 0;
   $: displayTime = formatMs(totalMs);
@@ -80,23 +86,24 @@
   }
 
   function removeTaskTag(tag: string) {
-    if (!task) return;
+    if (!task || !$canUpdateItem) return;
     removeTag(task.id, tag);
   }
 
   function startTitleEdit() {
-    if (!task) return;
+    if (!task || !$canUpdateItem) return;
     draftTitle = task.title;
     editingTitle = true;
   }
 
   function commitTitle() {
-    if (!task) return;
+    if (!task || !$canUpdateItem) return;
     editingTitle = false;
     dispatch('rename', { id: task.id, newName: draftTitle });
   }
 
   async function startAddTag() {
+    if (!$canAddTag) return;
     addingTag = true;
     newTag = '';
     await tick();
@@ -105,12 +112,12 @@
 
   function dropTag(e: DragEvent) {
     const tag = e.dataTransfer?.getData('text/tag');
-    if (!tag || !task || task.tags.includes(tag)) return;
+    if (!tag || !task || !$canAddTag || task.tags.includes(tag)) return;
     addTag(task.id, tag);
   }
 
   function commitTag() {
-    if (!task) {
+    if (!task || !$canAddTag) {
       addingTag = false;
       return;
     }
@@ -128,11 +135,12 @@
   }
 
   function startDetailsEdit() {
+    if (!canEditDetails) return;
     detailsBeforeEdit = draftDetails;
   }
 
   function commitDetails() {
-    if (!task || draftDetails === syncedDetails) return;
+    if (!task || !canEditDetails || draftDetails === syncedDetails) return;
     updateTaskDetails(task.id, draftDetails);
   }
 
@@ -144,7 +152,8 @@
 </script>
 
 <section class="advanced-details" bind:this={detailsSection}
-  on:dragover|preventDefault={() => {}}
+  aria-label="Task details"
+  on:dragover|preventDefault={$canAddTag ? () => {} : null}
   on:drop={dropTag}
 >
   {#if task}
@@ -152,7 +161,7 @@
       class="header"
       on:dblclick={startTitleEdit}
       role="button"
-      tabindex="0"
+      tabindex={$canUpdateItem ? 0 : -1}
       aria-label="Edit title (double click)"
     >
       {#if editingTitle}
@@ -170,19 +179,22 @@
         />
       {:else}
         <h3>{task.title}</h3>
-        <button
-          type="button"
-          class="edit-icon"
-          aria-label="Edit title"
-          on:click={startTitleEdit}
-          on:keydown={(e) =>
-            (e.key === 'Enter' || e.key === ' ') && startTitleEdit()}>✎</button
-        >
+        {#if $canUpdateItem}
+          <button
+            type="button"
+            class="edit-icon"
+            aria-label="Edit title"
+            on:click={startTitleEdit}
+            on:keydown={(e) =>
+              (e.key === 'Enter' || e.key === ' ') && startTitleEdit()}>✎</button
+          >
+        {/if}
       {/if}
     </div>
     <textarea
       placeholder="Task details"
       bind:value={draftDetails}
+      readonly={!canEditDetails}
       on:focus={startDetailsEdit}
       on:blur={commitDetails}
       on:keydown={cancelDetailsEdit}
@@ -205,7 +217,7 @@
       {#each [...task.tags].sort( (a, b) => a.localeCompare( b, undefined, { sensitivity: 'base' }, ), ) as tag}
         <span
           class="tag-pill"
-          draggable="true"
+          draggable={$canUpdateItem}
           role="button"
           tabindex="0"
           on:dragstart={(e: DragEvent) =>
@@ -235,7 +247,7 @@
             }
           }}
         />
-      {:else}
+      {:else if $canAddTag}
         <button type="button" class="tag-pill add-tag" on:click={startAddTag}
           >[+]</button
         >

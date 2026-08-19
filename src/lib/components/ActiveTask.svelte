@@ -13,6 +13,11 @@
     deleteTask,
     PRIORITY_COLORS,
     borderPreviewColor,
+    canAddTag,
+    canDeleteItem,
+    canUpdateActive,
+    canUpdateItem,
+    canUpdateOrder,
   } from '$lib';
   import TodoItem from './TodoItem.svelte';
   export let task: TodoTask | null = null;
@@ -22,7 +27,12 @@
 
   let showActions = false;
 
+  $: canMoveActiveTask = $canUpdateActive && $canUpdateOrder;
+  $: canClearActiveTask = $canUpdateActive && $canUpdateItem;
+  $: canDragActiveTask = canMoveActiveTask || canClearActiveTask;
+
   function handleWrapperDragStart(event: DragEvent) {
+    if (!canDragActiveTask) return;
     if (task) event.dataTransfer?.setData('text/task', task.id);
     showActions = true;
   }
@@ -33,7 +43,7 @@
 
   function dropMoveBack(e: DragEvent) {
     e.stopPropagation();
-    if (!task) return;
+    if (!task || !canMoveActiveTask) return;
     moveToTop(task.id);
     deactivateTask(task.id);
     showActions = false;
@@ -41,7 +51,7 @@
 
   function dropClear(e: DragEvent) {
     e.stopPropagation();
-    if (!task) return;
+    if (!task || !canClearActiveTask) return;
     clearTask(task.id);
     showActions = false;
   }
@@ -49,8 +59,8 @@
   function sectionDrop(e: DragEvent) {
     const id = e.dataTransfer?.getData('text/task');
     const tag = e.dataTransfer?.getData('text/tag');
-    if (id) activateTask(id);
-    if (tag && task && !task.tags.includes(tag)) {
+    if (id && $canUpdateActive) activateTask(id);
+    if (tag && $canAddTag && task && !task.tags.includes(tag)) {
       addTag(task.id, tag);
     }
   }
@@ -67,7 +77,7 @@
   {#if task}
     <div
       class="current"
-      draggable="true"
+      draggable={canDragActiveTask}
       role="listitem"
       aria-label="Active Task"
       on:dragstart={handleWrapperDragStart}
@@ -78,33 +88,37 @@
         interceptDrop={false}
         compact={true}
         useThemeBorder={true}
-        on:rename={(e) => renameTask(e.detail.id, e.detail.newName)}
-        on:changeBorder={(e) => changeBorder(e.detail.id, e.detail.borderColor)}
-        on:resetBorder={(e) => resetBorder(e.detail.id)}
-        on:delete={(e) => deleteTask(e.detail.id)}
+        on:rename={(e) => $canUpdateItem && renameTask(e.detail.id, e.detail.newName)}
+        on:changeBorder={(e) => $canUpdateItem && changeBorder(e.detail.id, e.detail.borderColor)}
+        on:resetBorder={(e) => $canUpdateItem && resetBorder(e.detail.id)}
+        on:delete={(e) => $canDeleteItem && deleteTask(e.detail.id)}
       />
-      <div
-        class="action drop-left"
-        class:visible={showActions}
-        role="button"
-        tabindex="0"
-        aria-label="Move Task Back"
-        on:dragover|preventDefault
-        on:drop={dropMoveBack}
-      >
-        ❌
-      </div>
-      <div
-        class="action drop-right"
-        class:visible={showActions}
-        role="button"
-        tabindex="0"
-        aria-label="Clear Task"
-        on:dragover|preventDefault
-        on:drop={dropClear}
-      >
-        ✅
-      </div>
+      {#if canMoveActiveTask}
+        <div
+          class="action drop-left"
+          class:visible={showActions}
+          role="button"
+          tabindex="0"
+          aria-label="Move Task Back"
+          on:dragover|preventDefault
+          on:drop={dropMoveBack}
+        >
+          ❌
+        </div>
+      {/if}
+      {#if canClearActiveTask}
+        <div
+          class="action drop-right"
+          class:visible={showActions}
+          role="button"
+          tabindex="0"
+          aria-label="Clear Task"
+          on:dragover|preventDefault
+          on:drop={dropClear}
+        >
+          ✅
+        </div>
+      {/if}
     </div>
   {:else}
     <p>No active task</p>
